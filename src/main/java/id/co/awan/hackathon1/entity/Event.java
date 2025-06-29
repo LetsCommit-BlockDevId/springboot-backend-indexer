@@ -1,31 +1,51 @@
 package id.co.awan.hackathon1.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.time.Instant;
-import java.util.List;
+import java.math.BigInteger;
 
-@Entity
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@Table(name = "event")
+@Entity
+@Table(name = "event", schema = "ponder")
 public class Event {
-
     @Id
-    private String eventAddress;
-    private String title;
-    private String imageUri;
-    private String description;
-    private String priceAmount;
-    private String commitmentAmount;
-    private Instant saleStart;
-    private Instant saleEnd;
-    private List<String> session;
+    @Column(name = "id", nullable = false, precision = 78)
+    private BigInteger id;
 
+    @Column(name = "title", nullable = false)
+    private String title;
+
+    @Column(name = "description", nullable = false)
+    private String description;
+
+    @Column(name = "image_uri", nullable = false)
+    private String imageUri;
+
+    @Column(name = "price_amount", nullable = false, precision = 78)
+    private BigInteger priceAmount;
+
+    @Column(name = "commitment_amount", nullable = false, precision = 78)
+    private BigInteger commitmentAmount;
+
+    @Column(name = "total_session", nullable = false)
+    private Long totalSession;
+
+    @Column(name = "start_sale_date", nullable = false, precision = 78)
+    private BigInteger startSaleDate;
+
+    @Column(name = "end_sale_date", nullable = false, precision = 78)
+    private BigInteger endSaleDate;
+
+    @Column(name = "organizer", nullable = false)
+    private String organizer;
 }
