@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class DashboardController {
 
-    private final EventRepository eventRepository;
+//    private final EventRepository eventRepository;
     private final ObjectMapper objectMapper;
 
     // DONE

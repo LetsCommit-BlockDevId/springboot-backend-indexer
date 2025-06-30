@@ -21,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventController {
 
-    private final EventRepository eventRepository;
+//    private final EventRepository eventRepository;
     private final ObjectMapper objectMapper;
 
     // DONE
