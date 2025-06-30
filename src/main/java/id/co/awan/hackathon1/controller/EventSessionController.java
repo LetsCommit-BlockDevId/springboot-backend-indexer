@@ -16,14 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 import java.math.BigInteger;
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/event/{eventId}/session")
+//@RestController
+//@RequestMapping("/api/event/{eventId}/session")
 @RequiredArgsConstructor
 public class EventSessionController {
 
 
-    private AttendRepository attendRepository;
-    private SessionRepository sessionRepository;
+    private final AttendRepository attendRepository;
+    private final SessionRepository sessionRepository;
 
     @Operation(
             summary = "Mendapatkan detail suatu session dari event"

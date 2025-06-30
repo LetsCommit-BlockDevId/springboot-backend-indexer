@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.math.BigInteger;
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/event/{eventId}/participants")
+//@RestController
+//@RequestMapping("/api/event/{eventId}/participants")
 @RequiredArgsConstructor
 public class EventParticipantController {
 
-    private EnrollRepository enrollRepository;
+    private final EnrollRepository enrollRepository;
 
     @Operation(
             summary = "Mendapatkan data participants pada event"
