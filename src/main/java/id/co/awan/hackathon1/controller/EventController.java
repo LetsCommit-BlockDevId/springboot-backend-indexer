@@ -1,9 +1,9 @@
 package id.co.awan.hackathon1.controller;
 
+import id.co.awan.hackathon1.mapper.EventMapper;
 import id.co.awan.hackathon1.model.dto.EventState;
 import id.co.awan.hackathon1.model.dto.GetEventResponse;
-import id.co.awan.hackathon1.mapper.EventMapper;
-import id.co.awan.hackathon1.model.dto.GetEventResponse;
+import id.co.awan.hackathon1.model.entity.Event;
 import id.co.awan.hackathon1.repository.EventRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigInteger;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EventController {
 
+    // TODO: Fix it
     private EventRepository eventRepository;
 
     @Operation(
@@ -36,25 +38,35 @@ public class EventController {
 //                    )
 //            }
     )
-    @GetMapping(path = "{eventAddress}")
-    public ResponseEntity<GetEventResponse> getEventDetail(
-            @PathVariable(name = "eventAddress")
-            @Parameter(description = "Berisi Event Address")
-            String eventAddress
+    @GetMapping(path = "{eventId}")
+    public ResponseEntity<Event> getEventDetail(
+            @PathVariable(name = "eventId")
+            @Parameter(description = "Berisi Event ID")
+            BigInteger eventId
     ) {
-        return ResponseEntity.ok(null);
+
+        Event event = eventRepository.findById(eventId)
+                .orElse(null);
+
+        return ResponseEntity.ok(event);
     }
 
 
     @Operation(
-            summary = "Mendapatkan data event berdasarkan creator"
+            summary = "Mendapatkan data event berdasarkan organizer"
     )
-    @GetMapping(path = "{creatorAddress}")
-    public ResponseEntity<GetEventResponse> getEventByCreator(
-            @PathVariable(name = "creatorAddress")
-            String creatorAddress
+    @GetMapping(path = "{organizerAddress}")
+    public ResponseEntity<List<Event>> getEventByOrganizer(
+            @PathVariable(name = "organizerAddress")
+            String organizerAddress
     ) {
-        return ResponseEntity.ok(null);
+
+        List<Event> collect = eventRepository.findAll()
+                .stream()
+                .filter(event -> event.getOrganizer().equals(organizerAddress))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(collect);
     }
 
 
@@ -62,7 +74,7 @@ public class EventController {
             summary = "Mendapatkan data event berdasarkan state"
     )
     @GetMapping
-    public ResponseEntity<List<GetEventResponse>> getEvent(
+    public ResponseEntity<List<GetEventResponse>> getEvents(
             @RequestParam(name = "state")
             EventState eventState
     ) {

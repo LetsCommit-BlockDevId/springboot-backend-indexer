@@ -1,7 +1,9 @@
 package id.co.awan.hackathon1.controller;
 
 import id.co.awan.hackathon1.model.entity.Attend;
+import id.co.awan.hackathon1.model.entity.Session;
 import id.co.awan.hackathon1.repository.AttendRepository;
+import id.co.awan.hackathon1.repository.SessionRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
@@ -21,38 +23,43 @@ public class EventSessionController {
 
 
     private AttendRepository attendRepository;
+    private SessionRepository sessionRepository;
 
     @Operation(
             summary = "Mendapatkan detail suatu session dari event"
     )
-    @GetMapping()
-    public ResponseEntity<List<String>> getSessions(
+    @GetMapping
+    public ResponseEntity<List<Session>> getSessions(
             @PathVariable(name = "eventId")
             @Parameter(description = "Address/Id dari Event")
-            String eventAddress
+            BigInteger eventId
     ) {
-        return ResponseEntity.ok(List.of(
-                eventAddress
-        ));
+
+        List<Session> sessions = sessionRepository
+                .findAllById(eventId);
+
+        return ResponseEntity.ok(sessions);
     }
 
     @Operation(
             summary = "Mendapatkan detail suatu session dari event"
     )
     @GetMapping(path = "{sessionNumber}")
-    public ResponseEntity<List<String>> getSessionDetail(
+    public ResponseEntity<Session> getSessionDetail(
             @PathVariable(name = "eventId")
             @Parameter(description = "Address/Id dari Event")
-            String eventAddress,
+            BigInteger eventId,
 
             @PathVariable(name = "sessionNumber")
             @Parameter(description = "Nomor Session")
             Integer sessionNumber
     ) {
-        return ResponseEntity.ok(List.of(
-                eventAddress,
-                sessionNumber.toString()
-        ));
+
+        Session session = sessionRepository
+                .findById(new Session.SessionId(eventId, sessionNumber))
+                .orElse(null);
+
+        return ResponseEntity.ok(session);
     }
 
 

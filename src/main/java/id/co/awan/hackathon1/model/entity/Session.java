@@ -37,8 +37,9 @@ public class Session {
     @Column(name = "end_session_time", nullable = false)
     private String endSessionTime;
 
-    @Column(name = "attend_token", nullable = true)
-    private String attendToken;
+    // TODO: Discuss With Team
+//    @Column(name = "attend_token", nullable = true)
+//    private String attendToken;
 
     // Composite Key Class
     @Setter
