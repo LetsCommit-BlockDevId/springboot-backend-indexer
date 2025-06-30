@@ -97,7 +97,7 @@ public class EventController {
                           "durationInHours": 1,
                           "durationInMinute": 60,
                           "peopleAttend": 0,
-                          "status": "UPCOMING|RUNNING|COMPLETE|UNATENDED",
+                          "status": "UPCOMING",
                           "activeQrButton": true
                         }
                       ],
@@ -156,7 +156,7 @@ public class EventController {
                             "durationInHours": 1,
                             "durationInMinute": 60,
                             "peopleAttend": 0,
-                            "status": "UPCOMING|RUNNING|COMPLETE|UNATENDED"
+                            "status": "UPCOMING"
                           }
                         ],
                         "statistic": {
