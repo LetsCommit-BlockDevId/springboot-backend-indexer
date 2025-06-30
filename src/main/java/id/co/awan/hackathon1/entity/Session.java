@@ -15,9 +15,9 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@IdClass(AttendEventSession.AttendEventSessionId.class)
-@Table(name = "attendEventSession", schema = "ponder")
-public class AttendEventSession {
+@IdClass(Session.SessionId.class)
+@Table(name = "session", schema = "ponder")
+public class Session {
 
     @Id
     @Column(name = "id", nullable = false, precision = 78)
@@ -27,32 +27,39 @@ public class AttendEventSession {
     @Column(name = "session", nullable = false)
     private Integer session;
 
-    @Id
-    @Column(name = "participant", nullable = false)
-    private String participant;
+    @Column(name = "title", nullable = false)
+    private String title;
+
+
+    @Column(name = "start_session_time", nullable = false)
+    private BigInteger startSessionTime;
+
+    @Column(name = "end_session_time", nullable = false)
+    private String endSessionTime;
+
+    @Column(name = "attend_token", nullable = true)
+    private String attendToken;
 
     // Composite Key Class
     @Setter
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class AttendEventSessionId implements Serializable {
+    public static class SessionId implements Serializable {
+
         private BigInteger id;
         private Integer session;
-        private String participant;
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof AttendEventSessionId that)) return false;
-            return Objects.equals(id, that.id) &&
-                    Objects.equals(session, that.session) &&
-                    Objects.equals(participant, that.participant);
+            if (!(o instanceof SessionId that)) return false;
+            return Objects.equals(id, that.id) && Objects.equals(session, that.session);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(id, session, participant);
+            return Objects.hash(id, session);
         }
     }
 }

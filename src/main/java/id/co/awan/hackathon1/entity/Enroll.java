@@ -15,48 +15,43 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@IdClass(EventTag.EventTagId.class)
-@Table(name = "event_tag", schema = "ponder")
-public class EventTag {
-
-//    @EmbeddedId
-//    EventTagId id;
+@Table(name = "enroll", schema = "ponder")
+@IdClass(Enroll.EnrollId.class)
+public class Enroll {
 
     @Id
     @Column(name = "id", nullable = false, precision = 78)
     private BigInteger id;
 
     @Id
-    @Column(name = "index", nullable = false)
-    private Integer index;
+    @Column(name = "participant", nullable = false)
+    private String participant;
 
-    @Column(name = "tag_name", nullable = false)
-    private String tagName;
+    @Column(name = "debit_amount", nullable = false, precision = 78)
+    private BigInteger debitAmount;
+
 
     // Composite Key Class
     @Setter
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
-//    @Embeddable
-    public static class EventTagId implements Serializable {
+    public static class EnrollId implements Serializable {
 
-//        @Column(name = "id", nullable = false, precision = 78)
         private BigInteger id;
-
-//        @Column(name = "index", nullable = false)
-        private Integer index;
+        private String participant;
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof EventTagId that)) return false;
-            return Objects.equals(id, that.id) && Objects.equals(index, that.index);
+            if (!(o instanceof Enroll.EnrollId that)) return false;
+            return Objects.equals(id, that.id) && Objects.equals(participant, that.participant);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(id, index);
+            return Objects.hash(id, participant);
         }
     }
+
 }

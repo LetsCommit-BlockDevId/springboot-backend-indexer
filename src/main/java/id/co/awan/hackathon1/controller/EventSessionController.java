@@ -1,25 +1,33 @@
 package id.co.awan.hackathon1.controller;
 
+import id.co.awan.hackathon1.entity.Attend;
+import id.co.awan.hackathon1.repository.AttendRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigInteger;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/event/{eventAddress}/session")
+@RequestMapping("/api/event/{eventId}/session")
+@RequiredArgsConstructor
 public class EventSessionController {
+
+
+    private final AttendRepository attendRepository;
 
     @Operation(
             summary = "Mendapatkan detail suatu session dari event"
     )
     @GetMapping()
     public ResponseEntity<List<String>> getSessions(
-            @PathVariable(name = "eventAddress")
+            @PathVariable(name = "eventId")
             @Parameter(description = "Address/Id dari Event")
             String eventAddress
     ) {
@@ -33,7 +41,7 @@ public class EventSessionController {
     )
     @GetMapping(path = "{sessionNumber}")
     public ResponseEntity<List<String>> getSessionDetail(
-            @PathVariable(name = "eventAddress")
+            @PathVariable(name = "eventId")
             @Parameter(description = "Address/Id dari Event")
             String eventAddress,
 
@@ -52,10 +60,10 @@ public class EventSessionController {
             summary = "Mendapatkan detail participant session di suatu event"
     )
     @GetMapping(path = "{sessionNumber}/{participantAddress}")
-    public ResponseEntity<List<String>> getSessionParticipantDetail(
-            @PathVariable(name = "eventAddress")
+    public ResponseEntity<Attend> getSessionParticipantDetail(
+            @PathVariable(name = "eventId")
             @Parameter(description = "Address/Id dari Event")
-            String eventAddress,
+            BigInteger eventId,
 
             @PathVariable(name = "sessionNumber")
             @Parameter(description = "Nomor Session")
@@ -65,11 +73,12 @@ public class EventSessionController {
             @Parameter(description = "Participant Address")
             String participantAddress
     ) {
-        return ResponseEntity.ok(List.of(
-                eventAddress,
-                sessionNumber.toString(),
-                participantAddress
-        ));
+
+        Attend attend = attendRepository
+                .findById(new Attend.AttendId(eventId, sessionNumber, participantAddress))
+                .orElse(null);
+
+        return ResponseEntity.ok(attend);
     }
 
 

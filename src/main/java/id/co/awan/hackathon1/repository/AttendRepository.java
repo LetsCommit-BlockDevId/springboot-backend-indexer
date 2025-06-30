@@ -1,11 +1,9 @@
 package id.co.awan.hackathon1.repository;
 
-import id.co.awan.hackathon1.entity.Event;
+import id.co.awan.hackathon1.entity.Attend;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigInteger;
-
 @Repository
-public interface EventRepository extends JpaRepository<Event, BigInteger> {
+public interface AttendRepository extends JpaRepository<Attend, Attend.AttendId> {
 }

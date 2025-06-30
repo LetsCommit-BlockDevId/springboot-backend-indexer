@@ -16,7 +16,7 @@ import java.math.BigInteger;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "organizerClaimUnattendedHistory", schema = "ponder")
+@Table(name = "organizer_claim_unattended_history", schema = "ponder")
 public class organizerClaimUnattendedHistory {
 
     @Id

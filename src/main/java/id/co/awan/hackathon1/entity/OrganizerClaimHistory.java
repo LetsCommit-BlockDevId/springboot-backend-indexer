@@ -16,7 +16,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @Entity
 @IdClass(OrganizerClaimHistory.OrganizerClaimHistoryId.class)
-@Table(name = "organizerClaimHistory", schema = "ponder")
+@Table(name = "organizer_claim_history", schema = "ponder")
 public class OrganizerClaimHistory {
 
     @Id
@@ -26,6 +26,9 @@ public class OrganizerClaimHistory {
     @Id
     @Column(name = "condition", nullable = false, length = 1)
     private Character condition;
+
+//    @EmbeddedId
+//    OrganizerClaimHistoryId id;
 
     @Column(name = "organizer", nullable = false)
     private String organizer;
@@ -38,8 +41,13 @@ public class OrganizerClaimHistory {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
+//    @Embeddable
     public static class OrganizerClaimHistoryId implements Serializable {
+
+//        @Column(name = "id", nullable = false, precision = 78)
         private BigInteger id;
+
+//        @Column(name = "condition", nullable = false, length = 1)
         private Character condition;
 
         @Override
