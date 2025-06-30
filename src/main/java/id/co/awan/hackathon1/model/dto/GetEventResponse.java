@@ -1,4 +1,4 @@
-package id.co.awan.hackathon1.dto;
+package id.co.awan.hackathon1.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

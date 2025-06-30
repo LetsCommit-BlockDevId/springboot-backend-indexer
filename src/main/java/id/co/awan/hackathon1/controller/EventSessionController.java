@@ -1,6 +1,6 @@
 package id.co.awan.hackathon1.controller;
 
-import id.co.awan.hackathon1.entity.Attend;
+import id.co.awan.hackathon1.model.entity.Attend;
 import id.co.awan.hackathon1.repository.AttendRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,7 +20,7 @@ import java.util.List;
 public class EventSessionController {
 
 
-    private final AttendRepository attendRepository;
+    private AttendRepository attendRepository;
 
     @Operation(
             summary = "Mendapatkan detail suatu session dari event"

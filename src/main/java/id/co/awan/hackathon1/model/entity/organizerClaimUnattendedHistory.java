@@ -1,4 +1,4 @@
-package id.co.awan.hackathon1.entity;
+package id.co.awan.hackathon1.model.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

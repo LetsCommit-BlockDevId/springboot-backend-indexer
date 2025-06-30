@@ -1,9 +1,9 @@
 package id.co.awan.hackathon1.controller;
 
-import id.co.awan.hackathon1.dto.EventState;
-import id.co.awan.hackathon1.dto.GetEventResponse;
+import id.co.awan.hackathon1.model.dto.EventState;
+import id.co.awan.hackathon1.model.dto.GetEventResponse;
 import id.co.awan.hackathon1.mapper.EventMapper;
-import id.co.awan.hackathon1.model.EventModel;
+import id.co.awan.hackathon1.model.dto.GetEventResponse;
 import id.co.awan.hackathon1.repository.EventRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EventController {
 
-    private final EventRepository eventRepository;
+    private EventRepository eventRepository;
 
     @Operation(
             summary = "Mendapatkan detail dari event"
@@ -31,13 +31,13 @@ public class EventController {
 //                            responseCode = "200",
 //                            content = @Content(
 //                                    mediaType = "application/json",
-//                                    schema = @Schema(implementation = EventModel.class)
+//                                    schema = @Schema(implementation = GetEventResponse.class)
 //                            )
 //                    )
 //            }
     )
     @GetMapping(path = "{eventAddress}")
-    public ResponseEntity<EventModel> getEventDetail(
+    public ResponseEntity<GetEventResponse> getEventDetail(
             @PathVariable(name = "eventAddress")
             @Parameter(description = "Berisi Event Address")
             String eventAddress
@@ -50,7 +50,7 @@ public class EventController {
             summary = "Mendapatkan data event berdasarkan creator"
     )
     @GetMapping(path = "{creatorAddress}")
-    public ResponseEntity<EventModel> getEventByCreator(
+    public ResponseEntity<GetEventResponse> getEventByCreator(
             @PathVariable(name = "creatorAddress")
             String creatorAddress
     ) {
