@@ -146,7 +146,7 @@ public class EventController {
                         "location": "string",
                         "participant": 10,
                         "maxParticipant": 20,
-                        "status": "ONGOING",
+                        "status": "ON_GOING",
                         "session": [
                           {
                             "sessionNumber": 0,

@@ -5,11 +5,6 @@ import lombok.Getter;
 @Getter
 public enum EventState {
 
-    ON_SALE("onsale"), ON_GOING("ongoing"), FINISHED("finished");
+    ON_SALE, ON_GOING, FINISHED;
 
-    final String value;
-
-    EventState(String value) {
-        this.value = value;
-    }
 }
