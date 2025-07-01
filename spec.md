@@ -62,7 +62,7 @@
       "durationInHours": 1, //calculate in backend
       "durationInMinute": 60, //calculate in backend
       "peopleAttend": 0, // A3
-      "status": "UPCOMING|RUNNING|COMPLETE|UNATENDED" //calculate in backend
+      "status": "UPCOMING|RUNNING|COMPLETE|UNATENDED" // is participant attend
     }
   ],
   "statistic": {

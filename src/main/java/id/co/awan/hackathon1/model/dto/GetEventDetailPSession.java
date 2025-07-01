@@ -15,10 +15,16 @@ public class GetEventDetailPSession {
 
     private Integer sessionNumber;
     private String title;
+
     private BigInteger startSessionEpochSecond;
     private BigInteger endSessionEpochSecond;
-    private Integer durationInMinute;
+
+    private String startSessionHumanReadable;
+    private String endSessionHumanReadable;
+
     private Integer durationInHours;
+    private Integer durationInMinute;
+
     private Integer peopleAttend;
     private SessionStatus status;
 
