@@ -19,10 +19,13 @@ public class GetEventDetailEOSession {
     private BigInteger startSession;
     private BigInteger endSession;
 
+    private String startSessionHumanReadable;
+    private String endSessionHumanReadable;
+
     private Integer durationInHours;
     private Integer durationInMinute;
 
-    private BigInteger peopleAttend;
+    private Integer peopleAttend;
 
     private SessionStatus status;
     private boolean activeQrButton;

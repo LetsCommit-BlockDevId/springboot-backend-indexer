@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigInteger;
 
-//@RestController
+@RestController
 @RequestMapping("/api/statistic")
 @RequiredArgsConstructor
 public class StatisticController {

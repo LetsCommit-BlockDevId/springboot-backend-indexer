@@ -28,6 +28,9 @@ public class Event {
     @Column(name = "description", nullable = false)
     private String description;
 
+    @Column(name = "location", nullable = false)
+    private String location;
+
     @Column(name = "image_uri", nullable = false)
     private String imageUri;
 
@@ -38,7 +41,10 @@ public class Event {
     private BigInteger commitmentAmount;
 
     @Column(name = "total_session", nullable = false)
-    private Long totalSession;
+    private Integer totalSession;
+
+    @Column(name = "max_participant", nullable = false)
+    private Integer maxParticipant;
 
     @Column(name = "start_sale_date", nullable = false, precision = 78)
     private BigInteger startSaleDate;

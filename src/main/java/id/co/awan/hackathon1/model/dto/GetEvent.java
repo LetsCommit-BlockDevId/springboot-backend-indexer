@@ -18,11 +18,14 @@ public class GetEvent {
     private String imageUri;
 
     private BigInteger priceAmount;
-    private Integer commitmentAmount;
+    private BigInteger commitmentAmount;
     private BigInteger totalAmount;
 
     private BigInteger startSaleDate;
     private BigInteger endSaleDate;
+
+    private String startSaleDateHumanReadable;
+    private String endSaleDateHumanReadable;
 
     private String organizer;
     private String location;

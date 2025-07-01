@@ -14,27 +14,27 @@ import java.util.List;
 @NoArgsConstructor
 public class GetEventDetailEO {
 
-    public int eventId;
+    public BigInteger eventId;
     public String title;
     public String description;
     public String imageUri;
 
-    public int priceAmount;
-    public int commitmentAmount;
-    public int totalAmount;
+    public BigInteger priceAmount;
+    public BigInteger commitmentAmount;
+    public BigInteger totalAmount;
 
-    public int startSaleDate;
-    public int endSaleDate;
+    public BigInteger startSaleDate;
+    public BigInteger endSaleDate;
 
     public String organizer;
     public String location;
 
-    public int participant;
-    public int maxParticipant;
+    public Integer participant;
+    public Integer maxParticipant;
 
-    public String status;
+    public EventState status;
 
-    public boolean canWithdraw;
+    public Boolean canWithdraw;
 
     public List<GetEventDetailEOSession> session;
     public GetEventDetailEOStatistic statistic;

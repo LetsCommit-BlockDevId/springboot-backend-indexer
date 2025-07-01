@@ -35,11 +35,11 @@ public class Session {
     private BigInteger startSessionTime;
 
     @Column(name = "end_session_time", nullable = false)
-    private String endSessionTime;
+    private BigInteger endSessionTime;
 
     // TODO: Discuss With Team
-//    @Column(name = "attend_token", nullable = true)
-//    private String attendToken;
+    @Column(name = "attend_token", nullable = true)
+    private String attendToken;
 
     // Composite Key Class
     @Setter

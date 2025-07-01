@@ -23,7 +23,9 @@
     "commitmentAmount": 50,
     "totalAmount": 110,
     "startSaleDate": 1751295986,
+    "startSaleDateHumanReadable": "10 Dec 2024",
     "endSaleDate": 1751299986,
+    "endSaleDateHumanReadable": "10 Dec 20224",
     "organizer": "string",
     "location": "string",
     "participant": 10,
@@ -43,30 +45,30 @@
   "imageUri": "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=400&h=300&fit=crop",
   "priceAmount": 60,
   "commitmentAmount": 50,
-  "totalAmount": 110,
+  "totalAmount": 110, //sum from 2 above
   "startSaleDate": 1751295986,
   "endSaleDate": 1751299986,
   "organizer": "string",
   "location": "string",
-  "participant": 10,
+  "participant": 10, //A2
   "maxParticipant": 20,
-  "status": "ONGOING",
+  "status": "ONGOING", //calculate in backend
   "session": [
     {
       "sessionNumber": 0,
       "title": "DeFi Fundamental Mastercllass",
       "startSession": 1751295986,
       "endSession": 1751295986,
-      "durationInHours": 1,
-      "durationInMinute": 60,
-      "peopleAttend": 0,
-      "status": "UPCOMING|RUNNING|COMPLETE|UNATENDED"
+      "durationInHours": 1, //calculate in backend
+      "durationInMinute": 60, //calculate in backend
+      "peopleAttend": 0, // A3
+      "status": "UPCOMING|RUNNING|COMPLETE|UNATENDED" //calculate in backend
     }
   ],
   "statistic": {
-    "sessionAttend": 1,
-    "sessionLength": 5,
-    "availableCommitment": 10
+    "sessionAttend": 1, //A1
+    "sessionLength": 5, // size of this.session
+    "availableCommitment": 10 //commFee - (commFeeRate * event yg sudah selesai)
   }
 }
 ```
@@ -103,10 +105,10 @@
     }
   ],
   "statistic": {
-    "totalRevenue": 1,
-    "sessionCompleted": 1,
+    "totalRevenue": 1, // A5
+    "sessionCompleted": 1, // A4
     "sessionLength": 5,
-    "avgAttendanceRatePercent": 10
+    "avgAttendanceRatePercent": 10 // A6
   }
 }
 ```
@@ -120,7 +122,7 @@
     "totalCommitmentFeeAvailable": 0,
     "totalCommitmentFeeClaimed": 0
   },
-  "upcomingSession": [
+  "upcomingSession": [ // A7
     {
       "eventId": 0,
       "eventTitle": "DeFi Fundamentals",
@@ -132,7 +134,7 @@
       "durationInMinute": 60
     }
   ],
-  "completedSession": [
+  "completedSession": [ // A8
     {
       "eventId": 0,
       "eventTitle": "DeFi Fundamentals",
