@@ -22,7 +22,8 @@ public class DashboardController {
             summary = "Mendapatkan data dashboard sebagai participant"
     )
     @GetMapping(path = "/participant")
-    public ResponseEntity<GetDashboardP> getDashboardViewParticipant(
+    public ResponseEntity<GetDashboardP>
+    getDashboardViewParticipant(
             @PathVariable(name = "address")
             String participantAddress
     ) {
@@ -44,7 +45,8 @@ public class DashboardController {
             summary = "Mendapatkan data dashboard sebagai event organizer"
     )
     @GetMapping(path = "/organizer")
-    public ResponseEntity<GetDashboardEO> getDashboardViewEventOrganizer(
+    public ResponseEntity<GetDashboardEO>
+    getDashboardViewEventOrganizer(
             @PathVariable(name = "address")
             String organizerAddress
     ) {

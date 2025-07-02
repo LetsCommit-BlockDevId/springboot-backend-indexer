@@ -34,11 +34,20 @@ public class DashboardService {
 
     /*
      * ======================================================================================
-     *                     Participant Statistic
+     *                          Common Services
      * ======================================================================================
      * */
-    public GetDashboardPStatistic getParticipantStatistic(String participantAddress)
-            throws ResponseStatusException {
+
+    public GetDashboardEOStatistic
+    getOrganizerStatistic(String organizerAddress) {
+        BigInteger totalRevenue = eventRepository.totalRevenueOfOrganizer(organizerAddress);
+        BigInteger totalClaimedRevenue = organizerClaimHistoryRepository.totalClaimedRevenue(organizerAddress);
+        BigInteger availableWithdraw = totalRevenue.subtract(totalClaimedRevenue); // Commitment yang belum diklaim = tot commitment fee - claimed commitment fee
+        return new GetDashboardEOStatistic(totalRevenue, availableWithdraw, totalClaimedRevenue);
+    }
+
+    public GetDashboardPStatistic
+    getParticipantStatistic(String participantAddress) throws ResponseStatusException {
 
         BigInteger totalCommitmentFee = enrollRepository
                 .totalCommitmentFee(participantAddress)
@@ -61,19 +70,54 @@ public class DashboardService {
         );
     }
 
+    public List<GetDashboardEOUpcomingSession>
+    getOrganizerUpcomingSession(String organizerAddress) {
+        return eventRepository
+                .upcomingSessionByOrganizer(organizerAddress)
+                .stream()
+                .map(sessionToUpcomingSessionOrganizer())
+                .toList();
+    }
+
+    public List<GetDashboardPUpcomingSession>
+    getParticipantUpcomingSession(String participantAddress) {
+        return enrollRepository
+                .upcomingSessionByEnrolled(participantAddress)
+                .stream()
+                .map(sessionToUpcomingSessionParticipant())
+                .toList();
+    }
+
+    public List<GetDashboardEOCompletedSession>
+    getOrganizerCompletedSession(String organizerAddress) {
+        return eventRepository
+                .completedSessionByOrganizer(organizerAddress)
+                .stream()
+                .map(sessionToCompletedSessionOrganizer())
+                .toList();
+    }
+
+    public List<GetDashboardPCompletedSession>
+    getParticipantCompletedSession(String participantAddress) {
+        return enrollRepository
+                .completedSessionByEnrolled(participantAddress)
+                .stream()
+                .map(sessionToCompletedSessionParticipant())
+                .toList();
+    }
+
     /*
      * ======================================================================================
-     *                     Participant Upcoming Session
+     *                             DTO / Stream Mapper
      * ======================================================================================
      * */
+
     private Function<Session, GetDashboardPUpcomingSession>
     sessionToUpcomingSessionParticipant() {
 
         return session -> {
 
-            Event event = eventRepository
-                    .findById(session.getId())
-                    .orElse(null);
+            Event event = getEventBySession(session);
 
             if (event == null) {
                 return null;
@@ -98,26 +142,11 @@ public class DashboardService {
         };
     }
 
-    public List<GetDashboardPUpcomingSession>
-    getParticipantUpcomingSession(String participantAddress) {
-        return enrollRepository
-                .upcomingSessionByEnrolled(participantAddress)
-                .stream()
-                .map(sessionToUpcomingSessionParticipant())
-                .toList();
-    }
-
-    /*
-     * ======================================================================================
-     *                     Participant Completed Session
-     * ======================================================================================
-     * */
     private Function<Session, GetDashboardPCompletedSession>
     sessionToCompletedSessionParticipant() {
         return session -> {
 
-            Event event = eventRepository.findById(session.getId())
-                    .orElse(null);
+            Event event = getEventBySession(session);
 
             if (event == null) {
                 return null;
@@ -137,39 +166,12 @@ public class DashboardService {
         };
     }
 
-    public List<GetDashboardPCompletedSession> getParticipantCompletedSession(String participantAddress) {
-        return enrollRepository
-                .completedSessionByEnrolled(participantAddress)
-                .stream()
-                .map(sessionToCompletedSessionParticipant())
-                .toList();
-    }
-
-    /*
-     * ======================================================================================
-     *                     Organizer Statistic
-     * ======================================================================================
-     * */
-    public GetDashboardEOStatistic getOrganizerStatistic(String organizerAddress) {
-        BigInteger totalRevenue = eventRepository.totalRevenueOfOrganizer(organizerAddress);
-        BigInteger totalClaimedRevenue = organizerClaimHistoryRepository.totalClaimedRevenue(organizerAddress);
-        BigInteger availableWithdraw = totalRevenue.subtract(totalClaimedRevenue); // Commitment yang belum diklaim = tot commitment fee - claimed commitment fee
-        return new GetDashboardEOStatistic(totalRevenue, availableWithdraw, totalClaimedRevenue);
-    }
-
-    /*
-     * ======================================================================================
-     *                     Organizer Upcoming Session
-     * ======================================================================================
-     * */
     private Function<Session, GetDashboardEOUpcomingSession>
     sessionToUpcomingSessionOrganizer() {
 
         return session -> {
 
-            Event event = eventRepository
-                    .findById(session.getId())
-                    .orElse(null);
+            Event event = getEventBySession(session);
 
             if (event == null) {
                 return null;
@@ -195,26 +197,12 @@ public class DashboardService {
 
     }
 
-    public List<GetDashboardEOUpcomingSession> getOrganizerUpcomingSession(String organizerAddress) {
-        return eventRepository
-                .upcomingSessionByOrganizer(organizerAddress)
-                .stream()
-                .map(sessionToUpcomingSessionOrganizer())
-                .toList();
-    }
-
-    /*
-     * ======================================================================================
-     *                     Organizer Completed Session
-     * ======================================================================================
-     * */
     private Function<Session, GetDashboardEOCompletedSession>
     sessionToCompletedSessionOrganizer() {
 
         return session -> {
 
-            Event event = eventRepository.findById(session.getId())
-                    .orElse(null);
+            Event event = getEventBySession(session);
 
             if (event == null) {
                 return null;
@@ -237,10 +225,16 @@ public class DashboardService {
         };
     }
 
-    public List<GetDashboardEOCompletedSession> getOrganizerCompletedSession(String organizerAddress) {
-        return eventRepository.completedSessionByOrganizer(organizerAddress)
-                .stream().map(sessionToCompletedSessionOrganizer())
-                .toList();
+    /*
+     * ======================================================================================
+     *                             Pure JPA
+     * ======================================================================================
+     * */
+
+    public Event getEventBySession(Session session) {
+        return eventRepository
+                .findById(session.getId())
+                .orElse(null);
     }
 
 
