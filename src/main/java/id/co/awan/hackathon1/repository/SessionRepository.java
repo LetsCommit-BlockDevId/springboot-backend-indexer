@@ -13,6 +13,9 @@ import java.util.Optional;
 @Repository
 public interface SessionRepository extends JpaRepository<Session, Session.SessionId> {
 
+    /**
+     * Mendapatkan semua data sesi berdasarkan eventId
+     */
     List<Session> findAllById(BigInteger id);
 
     /**

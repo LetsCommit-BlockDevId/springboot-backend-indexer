@@ -1,6 +1,7 @@
 package id.co.awan.hackathon1.controller;
 
 import id.co.awan.hackathon1.model.dto.*;
+import id.co.awan.hackathon1.model.entity.Attend;
 import id.co.awan.hackathon1.model.entity.Enroll;
 import id.co.awan.hackathon1.model.entity.Event;
 import id.co.awan.hackathon1.model.entity.Session;
@@ -156,7 +157,7 @@ public class EventController {
                 ));
 
         if (!enrollRepository.existsById(new Enroll.EnrollId(eventId, participantAddress))) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Participant not exists!");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Participant not exists!");
         }
 
         /*
@@ -165,7 +166,7 @@ public class EventController {
          * ======================================================================================
          * */
         List<Session> sessions = sessionRepository.findAllById(eventId);
-        List<GetEventDetailPSession> getEventDetailPSessions = sessions
+        List<GetEventDetailPSession> session = sessions
                 .stream()
                 .map(eventService.sessionToEventDetailPSession(participantAddress))
                 .toList();
@@ -173,6 +174,20 @@ public class EventController {
         Integer totalParticipant = enrollRepository.countAllById(eventId);
         EventState status = eventService.getEventStateStatus(eventId, event);
 
+
+        /*
+         * ======================================================================================
+         *                     Statistic Event Detail Participant View
+         * ======================================================================================
+         * */
+
+        Integer totalAttendInAnEvent = attendRepository.countAllByIdAndParticipant(eventId, participantAddress);
+
+        GetEventDetailPStatistic statistic = new GetEventDetailPStatistic(
+                totalAttendInAnEvent,
+                session.size(),
+                null
+        );
 
         /*
          * ======================================================================================
@@ -194,8 +209,8 @@ public class EventController {
                 totalParticipant,
                 event.getMaxParticipant(),
                 status,
-                getEventDetailPSessions,
-                null
+                session,
+                statistic
         );
 
         return ResponseEntity.ok(getEventDetailP);

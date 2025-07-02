@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 @Setter
@@ -20,6 +21,10 @@ public class GetEvent {
     private BigInteger priceAmount;
     private BigInteger commitmentAmount;
     private BigInteger totalAmount;
+
+    private BigDecimal priceAmountUsdFormat;
+    private BigDecimal commitmentAmountUsdFormat;
+    private BigDecimal totalAmountUsdFormat;
 
     private BigInteger startSaleDate;
     private BigInteger endSaleDate;

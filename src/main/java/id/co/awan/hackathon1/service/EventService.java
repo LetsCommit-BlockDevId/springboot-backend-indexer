@@ -10,7 +10,9 @@ import id.co.awan.hackathon1.repository.SessionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -25,6 +27,8 @@ public class EventService {
     private final AttendRepository attendRepository;
     private final EnrollRepository enrollRepository;
     private final SessionRepository sessionRepository;
+
+    DecimalFormat usdDecimalFormatter = new DecimalFormat("0.000000");
 
     private final DateTimeFormatter humanReadableFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")
             .withZone(ZoneId.systemDefault());
@@ -57,14 +61,25 @@ public class EventService {
 
             Integer participant = enrollRepository.countAllById(event.getId());
 
+            BigInteger priceAmount = event.getPriceAmount();
+            BigInteger commitmentAmount = event.getCommitmentAmount();
+            BigInteger totalAmount = priceAmount.add(commitmentAmount);
+
+            BigDecimal priceAmountUsdFormat = new BigDecimal(priceAmount).movePointLeft(6);
+            BigDecimal commitmentAmountUsdFormat = new BigDecimal(commitmentAmount).movePointLeft(6);
+            BigDecimal totalAmountUsdFormat = new BigDecimal(totalAmount).movePointLeft(6);
+
             return new GetEvent(
                     event.getId(),
                     event.getTitle(),
                     event.getDescription(),
                     event.getImageUri(),
-                    event.getPriceAmount(),
-                    event.getCommitmentAmount(),
-                    event.getPriceAmount().add(event.getCommitmentAmount()),
+                    priceAmount,
+                    commitmentAmount,
+                    totalAmount,
+                    priceAmountUsdFormat,
+                    commitmentAmountUsdFormat,
+                    totalAmountUsdFormat,
                     event.getStartSaleDate(),
                     event.getEndSaleDate(),
                     humanReadableFormatter.format(Instant.ofEpochSecond(startSaleDate)),
@@ -88,6 +103,7 @@ public class EventService {
             long currentTime = Instant.now().getEpochSecond();
             long startSessionTime = session.getStartSessionTime().longValue();
             long endSessionTime = session.getEndSessionTime().longValue();
+            long durationInSeconds = endSessionTime - startSessionTime;
 
             // Session Status Decision
             SessionStatus status;
@@ -109,7 +125,9 @@ public class EventService {
                 status = SessionStatus.UPCOMING;
             }
 
-            long durationInSeconds = endSessionTime - startSessionTime;
+
+            // QR Button
+            boolean isQrActive = status.equals(SessionStatus.RUNNING) && (session.getAttendToken() == null);
 
             return new GetEventDetailEOSession(
                     session.getSession(),
@@ -122,7 +140,7 @@ public class EventService {
                     Math.floorDiv((int) (durationInSeconds % 3600), 60),
                     totalAttenders,
                     status,
-                    status.equals(SessionStatus.RUNNING)
+                    isQrActive
             );
 
         };
