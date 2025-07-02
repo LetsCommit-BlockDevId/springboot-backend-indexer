@@ -16,6 +16,7 @@ import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -34,6 +35,12 @@ public class EventService {
             .withZone(ZoneId.systemDefault());
 
 
+    /*
+     * ======================================================================================
+     *                                  Get All Event Section
+     * ======================================================================================
+     * */
+
     public Predicate<Event>
     filterEventByState(EventState eventState) {
         return event -> {
@@ -41,7 +48,8 @@ public class EventService {
             long currentTime = Instant.now().getEpochSecond();
             long endSaleTime = event.getEndSaleDate().longValue();
 
-            Optional<Boolean> lastEventSessionHasEnd = sessionRepository.isLastEventSessionHasEnd(event.getId());
+            Optional<Boolean> lastEventSessionHasEnd = sessionRepository
+                    .isLastEventSessionHasEnd(event.getId());
 
             return switch (eventState) {
                 case FINISHED -> lastEventSessionHasEnd.get().equals(true); // last session dilakukan
@@ -92,6 +100,17 @@ public class EventService {
             );
         };
     }
+
+    public Integer
+    getTotalParticipant(Event event) {
+        return enrollRepository.countAllById(event.getId());
+    }
+
+    /*
+     * ======================================================================================
+     *                             Get Detail Event Organizer View
+     * ======================================================================================
+     * */
 
     public Function<Session, GetEventDetailEOSession>
     sessionToEventDetailEOSession() {
@@ -146,6 +165,65 @@ public class EventService {
         };
     }
 
+    public List<GetEventDetailEOSession>
+    getSessionsOrganizerView(Event event) {
+
+        List<Session> sessions = sessionRepository.findAllById(event.getId());
+        return sessions.stream()
+                .map(sessionToEventDetailEOSession())
+                .toList();
+
+    }
+
+    /*
+     * ======================================================================================
+     *                             Get Detail Event Participant View
+     * ======================================================================================
+     * */
+
+
+    public EventState
+    getEventStatus(Event event) {
+        long currentTime = Instant.now().getEpochSecond();
+        long endSaleTime = event.getEndSaleDate().longValue();
+
+        Boolean isLastEventSessionEnd = sessionRepository.isLastEventSessionHasEnd(event.getId())
+                .orElse(false);
+
+        if (isLastEventSessionEnd) {
+            return EventState.FINISHED;
+        } else if (currentTime > endSaleTime) {
+            return EventState.ON_GOING;
+        } else {
+            return EventState.ON_SALE;
+        }
+    }
+
+    public GetEventDetailEOStatistic
+    getEventDetailEOStatistic(Event event, Integer totalParticipant, Integer sessionLength) {
+
+        Integer attendantCounterInAnEvent = attendRepository.countAllById(event.getId());
+
+        // sesi yang memiliki token adalah sesi yang completed
+        List<Session> sessions = sessionRepository.findAllById(event.getId());
+        long sessionCompletedCount = sessions.stream()
+                .filter(session -> session.getAttendToken() != null)
+                .count();
+
+        BigInteger eventPrice = event.getPriceAmount();
+
+        return new GetEventDetailEOStatistic(
+                // price * participant
+                eventPrice.multiply(BigInteger.valueOf(totalParticipant)),
+                // sesi yang memiliki link
+                (int) sessionCompletedCount,
+                // total sesi
+                sessionLength,
+                // rata-rata persenan kehadiran = total semua kehadiran * 100 / total sesi
+                (attendantCounterInAnEvent * 100) / sessionLength
+        );
+    }
+
     public Function<Session, GetEventDetailPSession>
     sessionToEventDetailPSession(String participantAddress) {
         return session -> {
@@ -196,21 +274,28 @@ public class EventService {
         };
     }
 
-    public EventState
-    getEventStateStatus(BigInteger eventId, Event event) {
-        long currentTime = Instant.now().getEpochSecond();
-        long endSaleTime = event.getEndSaleDate().longValue();
-
-        Boolean isLastEventSessionEnd = sessionRepository.isLastEventSessionHasEnd(eventId)
-                .orElse(false);
-
-        if (isLastEventSessionEnd) {
-            return EventState.FINISHED;
-        } else if (currentTime > endSaleTime) {
-            return EventState.ON_GOING;
-        } else {
-            return EventState.ON_SALE;
-        }
+    public List<GetEventDetailPSession>
+    getSessionsParticipantView(Event event, String participantAddress) {
+        List<Session> sessions = sessionRepository.findAllById(event.getId());
+        return sessions
+                .stream()
+                .map(sessionToEventDetailPSession(participantAddress))
+                .toList();
     }
+
+    public Integer
+    getTotalParticipantAttendInAnEvent(Event event, String participantAddress) {
+        return attendRepository.countAllByIdAndParticipant(event.getId(), participantAddress);
+    }
+
+    public GetEventDetailPStatistic
+    getEventDetailPStatistic(Integer totalAttendInAnEvent, List<GetEventDetailPSession> session) {
+        return new GetEventDetailPStatistic(
+                totalAttendInAnEvent,
+                session.size(),
+                null
+        );
+    }
+
 }
 

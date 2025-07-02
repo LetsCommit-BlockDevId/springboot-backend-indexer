@@ -1,10 +1,11 @@
 package id.co.awan.hackathon1.controller;
 
-import id.co.awan.hackathon1.model.dto.*;
-import id.co.awan.hackathon1.model.entity.Attend;
+import id.co.awan.hackathon1.model.dto.EventState;
+import id.co.awan.hackathon1.model.dto.GetEvent;
+import id.co.awan.hackathon1.model.dto.GetEventDetailEO;
+import id.co.awan.hackathon1.model.dto.GetEventDetailP;
 import id.co.awan.hackathon1.model.entity.Enroll;
 import id.co.awan.hackathon1.model.entity.Event;
-import id.co.awan.hackathon1.model.entity.Session;
 import id.co.awan.hackathon1.repository.AttendRepository;
 import id.co.awan.hackathon1.repository.EnrollRepository;
 import id.co.awan.hackathon1.repository.EventRepository;
@@ -44,11 +45,12 @@ public class EventController {
             EventState eventState
     ) {
 
-        List<GetEvent> events = eventRepository.findAll()
+        var events = eventRepository
+                .findAll()
                 .stream()
                 .filter(eventService.filterEventByState(eventState))
                 .map(eventService.eventToGetEventDTO(eventState))
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.ok(events);
     }
@@ -64,59 +66,24 @@ public class EventController {
             BigInteger eventId
     ) {
 
-        /*
-         * ======================================================================================
-         *                     Validation Field
-         * ======================================================================================
-         * */
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Event Id not found!"
-                ));
+        var event = eventRepository.findById(eventId)
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Event Id not found!"));
 
+        var totalParticipant = eventService.getTotalParticipant(event);
+        var sessions = eventService.getSessionsOrganizerView(event);
+        var statistic = eventService.getEventDetailEOStatistic(event, totalParticipant, sessions.size());
+        var status = eventService.getEventStatus(event);
+        var canWithdraw = status.equals(EventState.FINISHED); // canWithDrawStatus only when event state finished
 
-        /*
-         * ======================================================================================
-         *                     Finding Sub Field GetEventDetailEO
-         * ======================================================================================
-         * */
-        Integer totalParticipant = enrollRepository.countAllById(eventId);
-        List<Session> sessions = sessionRepository.findAllById(eventId);
-        List<GetEventDetailEOSession> getEventDetailEOSessions = sessions.stream()
-                .map(eventService.sessionToEventDetailEOSession())
-                .toList();
-
-        long sessionHasActivatedLink = sessions.stream().filter(session -> session.getAttendToken() != null)
-                .count();
-
-        EventState status = eventService.getEventStateStatus(eventId, event);
-        Integer totalAttendedInAnEvent = attendRepository.countAllById(eventId);
-
-        GetEventDetailEOStatistic statistic = new GetEventDetailEOStatistic(
-                // price * participant
-                event.getPriceAmount().multiply(BigInteger.valueOf(totalParticipant)),
-                // sesi yang memiliki link
-                (int) sessionHasActivatedLink,
-                // total sesi
-                getEventDetailEOSessions.size(),
-                // rata-rata persenan kehadiran = total semua kehadiran * 100 / total sesi
-                (totalAttendedInAnEvent * 100) / getEventDetailEOSessions.size()
-        );
-
-        /*
-         * ======================================================================================
-         *                      Construct Response GetEventDetailEO
-         * ======================================================================================
-         * */
-        GetEventDetailEO getEventDetailEO = new GetEventDetailEO(
+        return ResponseEntity.ok(new GetEventDetailEO(
                 event.getId(),
                 event.getTitle(),
                 event.getDescription(),
                 event.getImageUri(),
                 event.getPriceAmount(),
                 event.getCommitmentAmount(),
-                // SUM Operation
-                event.getPriceAmount().add(event.getCommitmentAmount()),
+                event.getPriceAmount().add(event.getCommitmentAmount()), // SUM Operation
                 event.getStartSaleDate(),
                 event.getEndSaleDate(),
                 event.getOrganizer(),
@@ -124,13 +91,10 @@ public class EventController {
                 totalParticipant,
                 event.getMaxParticipant(),
                 status,
-                // canWithDrawStatus only when event state finished
-                status.equals(EventState.FINISHED),
-                getEventDetailEOSessions,
+                canWithdraw,
+                sessions,
                 statistic
-        );
-
-        return ResponseEntity.ok(getEventDetailEO);
+        ));
     }
 
     @Operation(
@@ -146,55 +110,23 @@ public class EventController {
             String participantAddress
     ) {
 
-        /*
-         * ======================================================================================
-         *                     Validation Field
-         * ======================================================================================
-         * */
+        // Validation
+        if (!enrollRepository.existsById(new Enroll.EnrollId(eventId, participantAddress))) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Participant not exists!");
+        }
+
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Event Id not found!"
                 ));
 
-        if (!enrollRepository.existsById(new Enroll.EnrollId(eventId, participantAddress))) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Participant not exists!");
-        }
+        var sessions = eventService.getSessionsParticipantView(event, participantAddress);
+        var totalParticipant = eventService.getTotalParticipant(event);
+        var status = eventService.getEventStatus(event);
+        var totalAttendInAnEvent = eventService.getTotalParticipantAttendInAnEvent(event, participantAddress);
+        var statistic = eventService.getEventDetailPStatistic(totalAttendInAnEvent, sessions);
 
-        /*
-         * ======================================================================================
-         *                     Finding Sub Field GetEventDetailP
-         * ======================================================================================
-         * */
-        List<Session> sessions = sessionRepository.findAllById(eventId);
-        List<GetEventDetailPSession> session = sessions
-                .stream()
-                .map(eventService.sessionToEventDetailPSession(participantAddress))
-                .toList();
-
-        Integer totalParticipant = enrollRepository.countAllById(eventId);
-        EventState status = eventService.getEventStateStatus(eventId, event);
-
-
-        /*
-         * ======================================================================================
-         *                     Statistic Event Detail Participant View
-         * ======================================================================================
-         * */
-
-        Integer totalAttendInAnEvent = attendRepository.countAllByIdAndParticipant(eventId, participantAddress);
-
-        GetEventDetailPStatistic statistic = new GetEventDetailPStatistic(
-                totalAttendInAnEvent,
-                session.size(),
-                null
-        );
-
-        /*
-         * ======================================================================================
-         *                      Construct Response GetEventDetailP
-         * ======================================================================================
-         * */
-        GetEventDetailP getEventDetailP = new GetEventDetailP(
+        return ResponseEntity.ok(new GetEventDetailP(
                 event.getId(),
                 event.getTitle(),
                 event.getDescription(),
@@ -209,10 +141,10 @@ public class EventController {
                 totalParticipant,
                 event.getMaxParticipant(),
                 status,
-                session,
+                sessions,
                 statistic
-        );
-
-        return ResponseEntity.ok(getEventDetailP);
+        ));
     }
+
+
 }
