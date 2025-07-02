@@ -14,6 +14,7 @@ import java.math.BigInteger;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -33,17 +34,15 @@ public class EventService {
     filterEventByState(EventState eventState) {
         return event -> {
 
-            // Mendapatkan waktu dari sesi terakir pada event
-            long lastSessionTime = sessionRepository.findLatestSessionTimeOfEvent(event.getId())
-                    .orElse(BigInteger.ZERO)
-                    .longValue();
-
             long currentTime = Instant.now().getEpochSecond();
             long endSaleTime = event.getEndSaleDate().longValue();
 
+            Optional<Boolean> lastEventSessionHasEnd = sessionRepository.isLastEventSessionHasEnd(event.getId());
+
             return switch (eventState) {
-                case FINISHED -> lastSessionTime < currentTime; // waktu akhir sesi terlampaui waktu sekarang
-                case ON_GOING -> endSaleTime <= currentTime; // waktu akhir penjualan terlampaui waktu sekarang
+                case FINISHED -> lastEventSessionHasEnd.get().equals(true); // last session dilakukan
+                case ON_GOING ->
+                        endSaleTime <= currentTime && lastEventSessionHasEnd.get().equals(false); // waktu akhir penjualan terlampaui waktu sekarang
                 case ON_SALE -> endSaleTime > currentTime; // waktu akhir penjualan masih melampaui sekarang
             };
         };

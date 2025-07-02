@@ -1,6 +1,7 @@
 package id.co.awan.hackathon1.controller;
 
 import id.co.awan.hackathon1.model.dto.*;
+import id.co.awan.hackathon1.model.entity.Enroll;
 import id.co.awan.hackathon1.model.entity.Event;
 import id.co.awan.hackathon1.model.entity.Session;
 import id.co.awan.hackathon1.repository.AttendRepository;
@@ -10,8 +11,10 @@ import id.co.awan.hackathon1.repository.SessionRepository;
 import id.co.awan.hackathon1.service.EventService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -131,7 +134,13 @@ public class EventController {
     ) {
 
         Event event = eventRepository.findById(eventId)
-                .orElse(null);
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Event Id not found!"
+                ));
+
+        if (!enrollRepository.existsById(new Enroll.EnrollId(eventId, participantAddress))) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Participant not exists!");
+        }
 
         Integer totalParticipant = enrollRepository.countAllById(eventId);
 
