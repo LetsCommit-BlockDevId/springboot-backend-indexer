@@ -90,7 +90,7 @@ public class EventController {
                 .count();
 
         EventState status = eventService.getEventStateStatus(eventId, event);
-        Integer totalAttendedInEvent = attendRepository.countAllById(eventId);
+        Integer totalAttendedInAnEvent = attendRepository.countAllById(eventId);
 
         GetEventDetailEOStatistic statistic = new GetEventDetailEOStatistic(
                 // price * participant
@@ -100,7 +100,7 @@ public class EventController {
                 // total sesi
                 getEventDetailEOSessions.size(),
                 // rata-rata persenan kehadiran = total semua kehadiran * 100 / total sesi
-                (totalAttendedInEvent * 100) / getEventDetailEOSessions.size()
+                (totalAttendedInAnEvent * 100) / getEventDetailEOSessions.size()
         );
 
         /*
