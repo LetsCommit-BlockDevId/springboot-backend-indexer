@@ -16,7 +16,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @Entity
 @IdClass(Attend.AttendId.class)
-@Table(name = "attend_event_ession", schema = "ponder")
+@Table(name = "attend_event_session", schema = "ponder")
 public class Attend {
 
     @Id

@@ -15,10 +15,16 @@ public class GetDashboardPCompletedSession {
 
     private BigInteger eventId;
     private String eventTitle;
+
     private Integer sessionNumber;
     private String sessionTitle;
+
     private BigInteger startSession;
     private BigInteger endSession;
+
+    private String startSessionHumanReadable;
+    private String endSessionHumanReadable;
+
     private Boolean isAttended;
 
 }

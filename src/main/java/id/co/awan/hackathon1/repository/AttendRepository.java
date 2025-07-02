@@ -14,7 +14,7 @@ public interface AttendRepository extends JpaRepository<Attend, Attend.AttendId>
 
     /**
      * Total participant attend session in an event [A1]
-     * */
+     */
     @Query(value = "select count(*) from Attend where participant = :participantAddress and id = :id")
     Optional<BigInteger> countParticipantAttendInAnEvent(
             @Param("id") BigInteger eventId,
@@ -23,12 +23,23 @@ public interface AttendRepository extends JpaRepository<Attend, Attend.AttendId>
 
     /**
      * Total attend in session event [A3]
-     * */
+     */
     Integer countAllByIdAndSession(BigInteger id, Integer session);
 
     /**
      * Total semua kehadiran yang sudah masuk di event
-     * */
+     */
     Integer countAllById(BigInteger id);
+
+    /**
+     * Total participant hadir di semua sesi event manapun
+     */
+    Integer countAllByParticipant(String participant);
+
+    /**
+     * Claim fee yang sudah diklaim
+     * */
+    @Query(value = "select count(*) * ev.priceAmount from Attend aes join Event ev on ev.id = aes.id where aes.participant = :participant group by aes.id, ev.priceAmount")
+    Optional<BigInteger> totalClaimedCommitmentFee(@Param("participant") String participant);
 
 }

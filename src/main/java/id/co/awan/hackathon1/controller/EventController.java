@@ -63,29 +63,34 @@ public class EventController {
             BigInteger eventId
     ) {
 
-        // Entity
+        /*
+         * ======================================================================================
+         *                     Validation Field
+         * ======================================================================================
+         * */
         Event event = eventRepository.findById(eventId)
-                .orElse(null);
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Event Id not found!"
+                ));
 
-        // For field -> totalParticipant
+
+        /*
+         * ======================================================================================
+         *                     Finding Sub Field GetEventDetailEO
+         * ======================================================================================
+         * */
         Integer totalParticipant = enrollRepository.countAllById(eventId);
-
-        // For field -> getEventDetailEOSessions
         List<Session> sessions = sessionRepository.findAllById(eventId);
-        List<GetEventDetailEOSession> getEventDetailEOSessions = sessions
-                .stream()
+        List<GetEventDetailEOSession> getEventDetailEOSessions = sessions.stream()
                 .map(eventService.sessionToEventDetailEOSession())
                 .toList();
 
         long sessionHasActivatedLink = sessions.stream().filter(session -> session.getAttendToken() != null)
                 .count();
 
-        // For field -> status
         EventState status = eventService.getEventStateStatus(eventId, event);
-
         Integer totalAttendedInEvent = attendRepository.countAllById(eventId);
 
-        // For field -> statistic
         GetEventDetailEOStatistic statistic = new GetEventDetailEOStatistic(
                 // price * participant
                 event.getPriceAmount().multiply(BigInteger.valueOf(totalParticipant)),
@@ -97,6 +102,11 @@ public class EventController {
                 (totalAttendedInEvent * 100) / getEventDetailEOSessions.size()
         );
 
+        /*
+         * ======================================================================================
+         *                      Construct Response GetEventDetailEO
+         * ======================================================================================
+         * */
         GetEventDetailEO getEventDetailEO = new GetEventDetailEO(
                 event.getId(),
                 event.getTitle(),
@@ -104,6 +114,7 @@ public class EventController {
                 event.getImageUri(),
                 event.getPriceAmount(),
                 event.getCommitmentAmount(),
+                // SUM Operation
                 event.getPriceAmount().add(event.getCommitmentAmount()),
                 event.getStartSaleDate(),
                 event.getEndSaleDate(),
@@ -112,6 +123,7 @@ public class EventController {
                 totalParticipant,
                 event.getMaxParticipant(),
                 status,
+                // canWithDrawStatus only when event state finished
                 status.equals(EventState.FINISHED),
                 getEventDetailEOSessions,
                 statistic
@@ -133,6 +145,11 @@ public class EventController {
             String participantAddress
     ) {
 
+        /*
+         * ======================================================================================
+         *                     Validation Field
+         * ======================================================================================
+         * */
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Event Id not found!"
@@ -142,17 +159,26 @@ public class EventController {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Participant not exists!");
         }
 
-        Integer totalParticipant = enrollRepository.countAllById(eventId);
-
+        /*
+         * ======================================================================================
+         *                     Finding Sub Field GetEventDetailP
+         * ======================================================================================
+         * */
         List<Session> sessions = sessionRepository.findAllById(eventId);
         List<GetEventDetailPSession> getEventDetailPSessions = sessions
                 .stream()
                 .map(eventService.sessionToEventDetailPSession(participantAddress))
                 .toList();
 
-
+        Integer totalParticipant = enrollRepository.countAllById(eventId);
         EventState status = eventService.getEventStateStatus(eventId, event);
 
+
+        /*
+         * ======================================================================================
+         *                      Construct Response GetEventDetailP
+         * ======================================================================================
+         * */
         GetEventDetailP getEventDetailP = new GetEventDetailP(
                 event.getId(),
                 event.getTitle(),

@@ -17,7 +17,7 @@ public class ErrorController {
         // Customize your error response here
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(List.of("error", ex.getMessage()));
+                .body(Map.of("error", ex.getMessage()));
     }
 
     @ExceptionHandler(ResponseStatusException.class)

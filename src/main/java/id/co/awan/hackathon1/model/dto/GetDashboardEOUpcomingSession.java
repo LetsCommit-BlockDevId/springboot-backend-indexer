@@ -15,10 +15,17 @@ public class GetDashboardEOUpcomingSession {
 
     public BigInteger eventId;
     public String eventTitle;
+
     public Integer sessionNumber;
     public String sessionTitle;
+
     public BigInteger startSession;
     public BigInteger endSession;
+
+    public String startSessionHumanReadable;
+    public String endSessionHumanReadable;
+
+
     public Integer durationInHours;
     public Integer durationInMinute;
 

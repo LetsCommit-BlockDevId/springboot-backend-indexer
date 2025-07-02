@@ -15,10 +15,17 @@ public class GetDashboardEOCompletedSession {
 
     private BigInteger eventId;
     private String eventTitle;
+
     private Integer sessionNumber;
     private String sessionTitle;
+
     private BigInteger startSession;
     private BigInteger endSession;
+
+    private String startSessionHumanReadable;
+    private String endSessionHumanReadable;
+
+
     private Boolean isLinkGenerated;
 
 }
