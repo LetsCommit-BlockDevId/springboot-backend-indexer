@@ -4,23 +4,16 @@ import id.co.awan.hackathon1.model.dto.EventState;
 import id.co.awan.hackathon1.model.dto.GetEvent;
 import id.co.awan.hackathon1.model.dto.GetEventDetailEO;
 import id.co.awan.hackathon1.model.dto.GetEventDetailP;
-import id.co.awan.hackathon1.model.entity.Enroll;
-import id.co.awan.hackathon1.model.entity.Event;
-import id.co.awan.hackathon1.repository.AttendRepository;
 import id.co.awan.hackathon1.repository.EnrollRepository;
 import id.co.awan.hackathon1.repository.EventRepository;
-import id.co.awan.hackathon1.repository.SessionRepository;
 import id.co.awan.hackathon1.service.EventService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigInteger;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/event")
@@ -28,11 +21,8 @@ import java.util.stream.Collectors;
 public class EventController {
 
     private final EventService eventService;
-
     private final EventRepository eventRepository;
     private final EnrollRepository enrollRepository;
-    private final AttendRepository attendRepository;
-    private final SessionRepository sessionRepository;
 
     // DONE
     @Operation(
@@ -66,10 +56,7 @@ public class EventController {
             BigInteger eventId
     ) {
 
-        var event = eventRepository.findById(eventId)
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Event Id not found!"));
-
+        var event = eventService.findEventById(eventId);
         var totalParticipant = eventService.getTotalParticipant(event);
         var sessions = eventService.getSessionsOrganizerView(event);
         var statistic = eventService.getEventDetailEOStatistic(event, totalParticipant, sessions.size());
@@ -110,16 +97,10 @@ public class EventController {
             String participantAddress
     ) {
 
-        // Validation
-        if (!enrollRepository.existsById(new Enroll.EnrollId(eventId, participantAddress))) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Participant not exists!");
-        }
+        // ResponseStatusException
+        eventService.validateParticipantExistInEvent(eventId, participantAddress);
 
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Event Id not found!"
-                ));
-
+        var event = eventService.findEventById(eventId);
         var sessions = eventService.getSessionsParticipantView(event, participantAddress);
         var totalParticipant = eventService.getTotalParticipant(event);
         var status = eventService.getEventStatus(event);

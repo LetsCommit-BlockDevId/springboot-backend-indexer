@@ -2,24 +2,14 @@ package id.co.awan.hackathon1.controller;
 
 import id.co.awan.hackathon1.model.dto.GetDashboardEO;
 import id.co.awan.hackathon1.model.dto.GetDashboardP;
-import id.co.awan.hackathon1.repository.AttendRepository;
-import id.co.awan.hackathon1.repository.EnrollRepository;
-import id.co.awan.hackathon1.repository.EventRepository;
-import id.co.awan.hackathon1.repository.OrganizerClaimHistoryRepository;
 import id.co.awan.hackathon1.service.DashboardService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.math.BigInteger;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 
 @RestController
 @RequestMapping("/api/dashboard/{address}")

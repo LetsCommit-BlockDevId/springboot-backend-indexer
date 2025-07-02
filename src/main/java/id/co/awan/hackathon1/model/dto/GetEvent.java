@@ -22,9 +22,9 @@ public class GetEvent {
     private BigInteger commitmentAmount;
     private BigInteger totalAmount;
 
-    private BigDecimal priceAmountUsdFormat;
-    private BigDecimal commitmentAmountUsdFormat;
-    private BigDecimal totalAmountUsdFormat;
+    private String priceAmountUsdFormat;
+    private String commitmentAmountUsdFormat;
+    private String totalAmountUsdFormat;
 
     private BigInteger startSaleDate;
     private BigInteger endSaleDate;

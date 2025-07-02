@@ -2,13 +2,17 @@ package id.co.awan.hackathon1.service;
 
 import id.co.awan.hackathon1.model.dto.*;
 import id.co.awan.hackathon1.model.entity.Attend;
+import id.co.awan.hackathon1.model.entity.Enroll;
 import id.co.awan.hackathon1.model.entity.Event;
 import id.co.awan.hackathon1.model.entity.Session;
 import id.co.awan.hackathon1.repository.AttendRepository;
 import id.co.awan.hackathon1.repository.EnrollRepository;
+import id.co.awan.hackathon1.repository.EventRepository;
 import id.co.awan.hackathon1.repository.SessionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -28,6 +32,7 @@ public class EventService {
     private final AttendRepository attendRepository;
     private final EnrollRepository enrollRepository;
     private final SessionRepository sessionRepository;
+    private final EventRepository eventRepository;
 
     DecimalFormat usdDecimalFormatter = new DecimalFormat("0.000000");
 
@@ -41,6 +46,14 @@ public class EventService {
      * ======================================================================================
      * */
 
+    public Event
+    findEventById(BigInteger eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Event Id not found!"
+                ));
+    }
+
     public Predicate<Event>
     filterEventByState(EventState eventState) {
         return event -> {
@@ -48,26 +61,28 @@ public class EventService {
             long currentTime = Instant.now().getEpochSecond();
             long endSaleTime = event.getEndSaleDate().longValue();
 
-            Optional<Boolean> lastEventSessionHasEnd = sessionRepository
+            Optional<Boolean> lastEventSessionStatus = sessionRepository
                     .isLastEventSessionHasEnd(event.getId());
 
-            return switch (eventState) {
-                case FINISHED -> lastEventSessionHasEnd.get().equals(true); // last session dilakukan
-                case ON_GOING ->
-                        endSaleTime <= currentTime && lastEventSessionHasEnd.get().equals(false); // waktu akhir penjualan terlampaui waktu sekarang
-                case ON_SALE -> endSaleTime > currentTime; // waktu akhir penjualan masih melampaui sekarang
-            };
+            return lastEventSessionStatus
+                    .map(lastEventSessionHasEnded ->
+                            switch (eventState) {
+                                case FINISHED -> lastEventSessionHasEnded.equals(true); // last session dilakukan
+                                case ON_GOING ->
+                                        endSaleTime <= currentTime && lastEventSessionHasEnded.equals(false); // waktu akhir penjualan terlampaui waktu sekarang
+                                case ON_SALE ->
+                                        endSaleTime > currentTime; // waktu akhir penjualan masih melampaui sekarang
+                            })
+                    .orElseGet(() -> endSaleTime > currentTime); // ON_SALE
         };
     }
 
     public Function<Event, GetEvent>
-    eventToGetEventDTO(EventState eventState) {
+    eventToGetEventDTO(EventState status) {
         return event -> {
 
-            long startSaleDate = event.getStartSaleDate().longValue();
-            long endSaleDate = event.getEndSaleDate().longValue();
-
-            Integer participant = enrollRepository.countAllById(event.getId());
+            BigInteger eventId = event.getId();
+            Integer participant = enrollRepository.countAllById(eventId);
 
             BigInteger priceAmount = event.getPriceAmount();
             BigInteger commitmentAmount = event.getCommitmentAmount();
@@ -77,26 +92,32 @@ public class EventService {
             BigDecimal commitmentAmountUsdFormat = new BigDecimal(commitmentAmount).movePointLeft(6);
             BigDecimal totalAmountUsdFormat = new BigDecimal(totalAmount).movePointLeft(6);
 
+            Instant startSaleDate = Instant.ofEpochSecond(event.getStartSaleDate().longValue());
+            Instant endSaleDate = Instant.ofEpochSecond(event.getEndSaleDate().longValue());
+
+            String startSaleDateHumanReadable = humanReadableFormatter.format(startSaleDate);
+            String endSaleDateHumanReadable = humanReadableFormatter.format(endSaleDate);
+
             return new GetEvent(
-                    event.getId(),
+                    eventId,
                     event.getTitle(),
                     event.getDescription(),
                     event.getImageUri(),
                     priceAmount,
                     commitmentAmount,
                     totalAmount,
-                    priceAmountUsdFormat,
-                    commitmentAmountUsdFormat,
-                    totalAmountUsdFormat,
+                    usdDecimalFormatter.format(priceAmountUsdFormat),
+                    usdDecimalFormatter.format(commitmentAmountUsdFormat),
+                    usdDecimalFormatter.format(totalAmountUsdFormat),
                     event.getStartSaleDate(),
                     event.getEndSaleDate(),
-                    humanReadableFormatter.format(Instant.ofEpochSecond(startSaleDate)),
-                    humanReadableFormatter.format(Instant.ofEpochSecond(endSaleDate)),
+                    startSaleDateHumanReadable,
+                    endSaleDateHumanReadable,
                     event.getOrganizer(),
                     event.getLocation(),
                     participant,
                     event.getMaxParticipant(),
-                    eventState
+                    status
             );
         };
     }
@@ -112,7 +133,7 @@ public class EventService {
      * ======================================================================================
      * */
 
-    public Function<Session, GetEventDetailEOSession>
+    private Function<Session, GetEventDetailEOSession>
     sessionToEventDetailEOSession() {
 
         return session -> {
@@ -182,6 +203,13 @@ public class EventService {
      * */
 
 
+    public void
+    validateParticipantExistInEvent(BigInteger eventId, String participantAddress) throws ResponseStatusException {
+        if (!enrollRepository.existsById(new Enroll.EnrollId(eventId, participantAddress))) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Participant not exists!");
+        }
+    }
+
     public EventState
     getEventStatus(Event event) {
         long currentTime = Instant.now().getEpochSecond();
@@ -224,7 +252,7 @@ public class EventService {
         );
     }
 
-    public Function<Session, GetEventDetailPSession>
+    private Function<Session, GetEventDetailPSession>
     sessionToEventDetailPSession(String participantAddress) {
         return session -> {
 
