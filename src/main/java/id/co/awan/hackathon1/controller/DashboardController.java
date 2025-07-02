@@ -1,19 +1,17 @@
 package id.co.awan.hackathon1.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import id.co.awan.hackathon1.model.dto.*;
 import id.co.awan.hackathon1.model.entity.Event;
-import id.co.awan.hackathon1.repository.AttendRepository;
-import id.co.awan.hackathon1.repository.EnrollRepository;
-import id.co.awan.hackathon1.repository.EventRepository;
-import id.co.awan.hackathon1.repository.SessionRepository;
+import id.co.awan.hackathon1.repository.*;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigInteger;
 import java.time.Instant;
@@ -26,12 +24,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DashboardController {
 
-    //    private final EventRepository eventRepository;
-    private final ObjectMapper objectMapper;
     private final AttendRepository attendRepository;
     private final EnrollRepository enrollRepository;
-    private final SessionRepository sessionRepository;
     private final EventRepository eventRepository;
+    private final OrganizerClaimHistoryRepository organizerClaimHistoryRepository;
 
     private final DateTimeFormatter humanReadableFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")
             .withZone(ZoneId.systemDefault());
@@ -47,22 +43,52 @@ public class DashboardController {
     ) {
 
 
+        /*
+         * ======================================================================================
+         *                    Participant Validation
+         * ======================================================================================
+         * */
+
+        // Akan Zero jika participant tidak pernah enroll event
+        // Jadi di error kan saja
         BigInteger totalCommitmentFee = enrollRepository.totalCommitmentFee(participantAddress)
-                .orElse(BigInteger.ZERO);
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "participant don't have enrolled event"
+                ));
+
+        // Akan Zero jika participant tidak pernah attend event
         BigInteger totalClaimedCommitmentFee = attendRepository.totalClaimedCommitmentFee(participantAddress)
                 .orElse(BigInteger.ZERO);
 
+        /*
+         * ======================================================================================
+         *                     Participant Statistic
+         * ======================================================================================
+         * */
+
+        // Commitment yang belum diklaim = tot commitment fee - claimed commitment fee
+        BigInteger unclaimedCommitmentFee = totalCommitmentFee.subtract(totalClaimedCommitmentFee);
         GetDashboardPStatistic statistic = new GetDashboardPStatistic(
-                BigInteger.ZERO, //Gak relevan,
-                totalCommitmentFee.subtract(totalClaimedCommitmentFee),
+                null, //Gak relevan,
+                unclaimedCommitmentFee,
                 totalClaimedCommitmentFee
         );
 
+        /*
+         * ======================================================================================
+         *                     Participant Upcoming Session
+         * ======================================================================================
+         * */
         List<GetDashboardPUpcomingSession> upcomingSessions = enrollRepository.upcomingSessionByEnrolled(participantAddress)
                 .stream().map(session -> {
 
                     Event event = eventRepository.findById(session.getId())
                             .orElse(null);
+
+                    if (event == null) {
+                        return null;
+                    }
 
                     long startSessionTime = session.getStartSessionTime().longValue();
                     long endSessionTime = session.getEndSessionTime().longValue();
@@ -83,10 +109,21 @@ public class DashboardController {
                 })
                 .toList();
 
-        List<GetDashboardPCompletedSession> completeSession = enrollRepository.completedSessionByEnrolled(participantAddress)
+        /*
+         * ======================================================================================
+         *                     Participant Completed Session
+         * ======================================================================================
+         * */
+        List<GetDashboardPCompletedSession> completedSession = enrollRepository.completedSessionByEnrolled(participantAddress)
                 .stream().map(session -> {
+
                     Event event = eventRepository.findById(session.getId())
                             .orElse(null);
+
+                    if (event == null) {
+                        return null;
+                    }
+
                     return new GetDashboardPCompletedSession(
                             event.getId(),
                             event.getTitle(),
@@ -101,12 +138,12 @@ public class DashboardController {
                 })
                 .toList();
 
-        GetDashboardP getDashboardP = new GetDashboardP(
-                statistic,
-                upcomingSessions,
-                completeSession
-        );
-
+        /*
+         * ======================================================================================
+         *                      Construct Response GetDashboardP
+         * ======================================================================================
+         * */
+        GetDashboardP getDashboardP = new GetDashboardP(statistic, upcomingSessions, completedSession);
         return ResponseEntity.ok(getDashboardP);
 
     }
@@ -121,11 +158,37 @@ public class DashboardController {
             String organizerAddress
     ) {
 
+
+        /*
+         * ======================================================================================
+         *                     Organizer Statistic
+         * ======================================================================================
+         * */
+
+        BigInteger totalRevenue = eventRepository.totalRevenueOfOrganizer(organizerAddress);
+        BigInteger totalClaimedRevenue = organizerClaimHistoryRepository.totalClaimedRevenue(organizerAddress);
+
+        // Commitment yang belum diklaim = tot commitment fee - claimed commitment fee
+        GetDashboardEOStatistic statistic = new GetDashboardEOStatistic(
+                totalRevenue,
+                totalRevenue.subtract(totalClaimedRevenue),
+                totalClaimedRevenue
+        );
+
+        /*
+         * ======================================================================================
+         *                     Organizer Upcoming Session
+         * ======================================================================================
+         * */
         List<GetDashboardEOUpcomingSession> upcomingSession = eventRepository.upcomingSessionByOrganizer(organizerAddress)
                 .stream().map(session -> {
 
                             Event event = eventRepository.findById(session.getId())
                                     .orElse(null);
+
+                            if (event == null) {
+                                return null;
+                            }
 
                             long startSessionTime = session.getStartSessionTime().longValue();
                             long endSessionTime = session.getEndSessionTime().longValue();
@@ -147,11 +210,20 @@ public class DashboardController {
                 )
                 .toList();
 
+        /*
+         * ======================================================================================
+         *                     Organizer Completed Session
+         * ======================================================================================
+         * */
         List<GetDashboardEOCompletedSession> completededSession = eventRepository.completedSessionByOrganizer(organizerAddress)
                 .stream().map(session -> {
 
                     Event event = eventRepository.findById(session.getId())
                             .orElse(null);
+
+                    if (event == null) {
+                        return null;
+                    }
 
                     return new GetDashboardEOCompletedSession(
                             event.getId(),
@@ -162,6 +234,7 @@ public class DashboardController {
                             session.getEndSessionTime(),
                             humanReadableFormatter.format(Instant.ofEpochSecond(session.getStartSessionTime().longValue())),
                             humanReadableFormatter.format(Instant.ofEpochSecond(session.getEndSessionTime().longValue())),
+                            // TODO: Complete this logic
                             null
                     );
 
@@ -169,12 +242,12 @@ public class DashboardController {
                 })
                 .toList();
 
-        GetDashboardEO getDashboardEO = new GetDashboardEO(
-                null,
-                upcomingSession,
-                completededSession
-        );
-
+        /*
+         * ======================================================================================
+         *                      Construct Response GetDashboardEO
+         * ======================================================================================
+         * */
+        GetDashboardEO getDashboardEO = new GetDashboardEO(statistic, upcomingSession, completededSession);
         return ResponseEntity.ok(getDashboardEO);
     }
 

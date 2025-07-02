@@ -15,5 +15,5 @@ public class GetDashboardEOStatistic {
 
     private BigInteger totalRevenue;
     private BigInteger availableWithdraw;
-    private BigInteger totalCommitmentFeeClaimed;
+    private BigInteger totalClaimedRevenue;
 }
