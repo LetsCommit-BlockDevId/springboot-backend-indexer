@@ -108,6 +108,22 @@ public class EventService {
     }
 
 
+    private String formatDurationFromNow(BigInteger diff) {
+
+        if (diff.compareTo(BigInteger.ZERO) <= 0) return "Sudah lewat";
+
+        BigInteger[] hourAndRemainder = diff.divideAndRemainder(BigInteger.valueOf(3600));
+        BigInteger hours = hourAndRemainder[0];
+        BigInteger[] minuteAndRemainder = hourAndRemainder[1].divideAndRemainder(BigInteger.valueOf(60));
+        BigInteger minutes = minuteAndRemainder[0];
+
+        StringBuilder sb = new StringBuilder();
+        if (hours.compareTo(BigInteger.ZERO) > 0) sb.append(hours).append(" jam ");
+        if (minutes.compareTo(BigInteger.ZERO) > 0) sb.append(minutes).append(" menit");
+        if (sb.isEmpty()) sb.append("Kurang dari 1 menit");
+        return sb.toString().trim();
+    }
+
     /*
      * ======================================================================================
      *                           Validation
@@ -289,6 +305,7 @@ public class EventService {
             long startSessionTime = session.getStartSessionTime().longValue();
             long endSessionTime = session.getEndSessionTime().longValue();
             long durationInSeconds = endSessionTime - startSessionTime;
+            BigInteger estimatedInSecond = BigInteger.valueOf(startSessionTime - Instant.now().getEpochSecond());
 
             SessionStatus status = getSessionStatusOrganizerView(session);
 
@@ -302,6 +319,8 @@ public class EventService {
                     session.getEndSessionTime(),
                     humanReadableFormatter.format(Instant.ofEpochSecond(startSessionTime)),
                     humanReadableFormatter.format(Instant.ofEpochSecond(endSessionTime)),
+                    estimatedInSecond,
+                    formatDurationFromNow(estimatedInSecond),
                     Math.floorDiv((int) durationInSeconds, 3600),
                     Math.floorDiv((int) (durationInSeconds % 3600), 60),
                     totalAttenders,
@@ -320,6 +339,7 @@ public class EventService {
 
             long startSessionTime = session.getStartSessionTime().longValue();
             long endSessionTime = session.getEndSessionTime().longValue();
+            BigInteger estimatedInSecond = BigInteger.valueOf(startSessionTime - Instant.now().getEpochSecond());
 
             SessionStatus status = getSessionStatusParticipantView(participantAddress, session);
 
@@ -332,6 +352,8 @@ public class EventService {
                     session.getEndSessionTime(),
                     humanReadableFormatter.format(Instant.ofEpochSecond(startSessionTime)),
                     humanReadableFormatter.format(Instant.ofEpochSecond(endSessionTime)),
+                    estimatedInSecond,
+                    formatDurationFromNow(estimatedInSecond),
                     Math.floorDiv((int) durationInSeconds, 3600),
                     Math.floorDiv((int) (durationInSeconds % 3600), 60),
                     totalAttenders,

@@ -22,7 +22,6 @@ public class EventController {
 
     private final EventService eventService;
     private final EventRepository eventRepository;
-    private final EnrollRepository enrollRepository;
 
     // DONE
     @Operation(

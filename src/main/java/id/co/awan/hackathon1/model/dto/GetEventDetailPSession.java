@@ -22,6 +22,9 @@ public class GetEventDetailPSession {
     private String startSessionHumanReadable;
     private String endSessionHumanReadable;
 
+    private BigInteger willStartIn;
+    private String willStartInHumanReadable;
+
     private Integer durationInHours;
     private Integer durationInMinute;
 
