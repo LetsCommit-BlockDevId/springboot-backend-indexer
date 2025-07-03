@@ -4,6 +4,7 @@ import id.co.awan.hackathon1.model.dto.EventState;
 import id.co.awan.hackathon1.model.dto.GetEvent;
 import id.co.awan.hackathon1.model.dto.GetEventDetailEO;
 import id.co.awan.hackathon1.model.dto.GetEventDetailP;
+import id.co.awan.hackathon1.repository.EnrollRepository;
 import id.co.awan.hackathon1.repository.EventRepository;
 import id.co.awan.hackathon1.service.EventService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,6 +22,7 @@ public class EventController {
 
     private final EventService eventService;
     private final EventRepository eventRepository;
+    private final EnrollRepository enrollRepository;
 
     // DONE
     @Operation(
@@ -60,6 +62,7 @@ public class EventController {
         var statistic = eventService.getEventDetailEOStatistic(event, totalParticipant, sessions.size());
         var status = eventService.getEventStatus(event);
         var canWithdraw = status.equals(EventState.FINISHED); // canWithDrawStatus only when event state finished
+        var participantList = eventService.getEventParticipants(event);
 
         return ResponseEntity.ok(new GetEventDetailEO(
                 event.getId(),
@@ -73,6 +76,7 @@ public class EventController {
                 event.getEndSaleDate(),
                 event.getOrganizer(),
                 event.getLocation(),
+                participantList,
                 totalParticipant,
                 event.getMaxParticipant(),
                 status,
@@ -104,6 +108,8 @@ public class EventController {
         var status = eventService.getEventStatus(event);
         var totalAttendInAnEvent = eventService.getTotalParticipantAttendInAnEvent(event, participantAddress);
         var statistic = eventService.getEventDetailPStatistic(totalAttendInAnEvent, sessions);
+        var participantList = eventService.getEventParticipants(event);
+
 
         return ResponseEntity.ok(new GetEventDetailP(
                 event.getId(),
@@ -117,6 +123,7 @@ public class EventController {
                 event.getEndSaleDate(),
                 event.getOrganizer(),
                 event.getLocation(),
+                participantList,
                 totalParticipant,
                 event.getMaxParticipant(),
                 status,
@@ -124,6 +131,4 @@ public class EventController {
                 statistic
         ));
     }
-
-
 }

@@ -23,6 +23,12 @@ public interface EnrollRepository extends JpaRepository<Enroll, Enroll.EnrollId>
     Integer countAllById(BigInteger id);
 
     /**
+     * Total jumlah participant dalam sebuah event
+     */
+    @Query(value = "select participant from Enroll where id = :id")
+    List<String> findAllParticipanInAnEvent(BigInteger id);
+
+    /**
      * Total Commitment Fee participant jika dihitung semua dari awal sampai akhir
      */
     @Query(value = "select sum(ev.priceAmount * ev.totalSession) from Enroll en join Event ev on ev.id = en.id where en.participant = :participant")

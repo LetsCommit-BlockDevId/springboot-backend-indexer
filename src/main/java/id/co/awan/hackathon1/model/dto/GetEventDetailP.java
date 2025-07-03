@@ -29,6 +29,7 @@ public class GetEventDetailP {
     private String organizer;
     private String location;
 
+    public List<String> participantList;
     private Integer participant;
     private Integer maxParticipant;
 

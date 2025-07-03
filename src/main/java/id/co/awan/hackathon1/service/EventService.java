@@ -138,6 +138,11 @@ public class EventService {
         return attendRepository.countAllByIdAndParticipant(event.getId(), participantAddress);
     }
 
+    public List<String>
+    getEventParticipants(Event event) {
+        return enrollRepository.findAllParticipanInAnEvent(event.getId());
+    }
+
     /*
      * ======================================================================================
      *                             Status Decision
