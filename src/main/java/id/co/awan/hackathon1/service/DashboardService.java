@@ -53,7 +53,7 @@ public class DashboardService {
                 .totalCommitmentFee(participantAddress)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "participant don't have enrolled event"
+                        "participant doesn't have enrolled event"
                 ));
 
         BigInteger totalCommitmentFeeClaimed = attendRepository
