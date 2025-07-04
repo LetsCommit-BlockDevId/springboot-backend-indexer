@@ -47,23 +47,23 @@ public class OrganizerClaimHistory {
 //    @Embeddable
     public static class OrganizerClaimHistoryId implements Serializable {
 
-//        @Column(name = "id", nullable = false, precision = 78)
+        //        @Column(name = "id", nullable = false, precision = 78)
         private BigInteger id;
 
-//        @Column(name = "condition", nullable = false, length = 1)
-        private Character condition;
+        //        @Column(name = "condition", nullable = false, length = 1)
+        private BigInteger sessionIndex;
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof OrganizerClaimHistoryId)) return false;
             OrganizerClaimHistoryId that = (OrganizerClaimHistoryId) o;
-            return Objects.equals(id, that.id) && Objects.equals(condition, that.condition);
+            return Objects.equals(id, that.id) && Objects.equals(sessionIndex, that.sessionIndex);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(id, condition);
+            return Objects.hash(id, sessionIndex);
         }
     }
 
