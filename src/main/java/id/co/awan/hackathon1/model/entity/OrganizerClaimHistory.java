@@ -24,6 +24,9 @@ public class OrganizerClaimHistory {
     private BigInteger id;
 
     @Id
+    @Column(name = "session", nullable = false, precision = 78)
+    private BigInteger sessionIndex;
+
     @Column(name = "condition", nullable = false, length = 1)
     private Character condition;
 
