@@ -1,6 +1,7 @@
 package id.co.awan.hackathon1.service;
 
 import id.co.awan.hackathon1.model.dto.*;
+import id.co.awan.hackathon1.model.entity.Attend;
 import id.co.awan.hackathon1.model.entity.Event;
 import id.co.awan.hackathon1.model.entity.Session;
 import id.co.awan.hackathon1.repository.AttendRepository;
@@ -101,7 +102,7 @@ public class DashboardService {
         return enrollRepository
                 .completedSessionByEnrolled(participantAddress)
                 .stream()
-                .map(sessionToCompletedSessionParticipant())
+                .map(sessionToCompletedSessionParticipant(participantAddress))
                 .toList();
     }
 
@@ -142,7 +143,7 @@ public class DashboardService {
     }
 
     private Function<Session, GetDashboardPCompletedSession>
-    sessionToCompletedSessionParticipant() {
+    sessionToCompletedSessionParticipant(String participantAddress) {
         return session -> {
 
             Event event = getEventBySession(session);
@@ -150,6 +151,8 @@ public class DashboardService {
             if (event == null) {
                 return null;
             }
+
+            Boolean isAttended = isParticipantHasAttendedSession(participantAddress, session);
 
             return new GetDashboardPCompletedSession(
                     event.getId(),
@@ -160,7 +163,7 @@ public class DashboardService {
                     session.getEndSessionTime(),
                     humanReadableFormatter.format(Instant.ofEpochSecond(session.getStartSessionTime().longValue())),
                     humanReadableFormatter.format(Instant.ofEpochSecond(session.getEndSessionTime().longValue())),
-                    null
+                    isAttended
             );
         };
     }
@@ -243,6 +246,14 @@ public class DashboardService {
         return eventRepository
                 .findById(session.getId())
                 .orElse(null);
+    }
+
+    private Boolean isParticipantHasAttendedSession(String participantAddress, Session session) {
+        return attendRepository.existsById(new Attend.AttendId(
+                session.getId(),
+                session.getSession(),
+                participantAddress
+        ));
     }
 
 
