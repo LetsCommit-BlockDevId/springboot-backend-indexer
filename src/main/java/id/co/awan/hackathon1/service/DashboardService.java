@@ -38,8 +38,12 @@ public class DashboardService {
 
     public GetDashboardEOStatistic
     getOrganizerStatistic(String organizerAddress) {
-        BigInteger totalRevenue = eventRepository.totalRevenueOfOrganizer(organizerAddress);
-        BigInteger totalClaimedRevenue = organizerClaimHistoryRepository.totalClaimedRevenue(organizerAddress);
+
+        BigInteger totalRevenue = eventRepository.totalRevenueOfOrganizer(organizerAddress)
+                .orElse(BigInteger.ZERO);
+        BigInteger totalClaimedRevenue = organizerClaimHistoryRepository.totalClaimedRevenue(organizerAddress)
+                .orElse(BigInteger.ZERO);
+
         BigInteger availableWithdraw = totalRevenue.subtract(totalClaimedRevenue); // Commitment yang belum diklaim = tot commitment fee - claimed commitment fee
         return new GetDashboardEOStatistic(totalRevenue, availableWithdraw, totalClaimedRevenue);
     }

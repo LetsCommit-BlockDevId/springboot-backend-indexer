@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigInteger;
+import java.util.Optional;
 
 @Repository
 public interface OrganizerClaimHistoryRepository extends JpaRepository<OrganizerClaimHistory, OrganizerClaimHistory.OrganizerClaimHistoryId> {
@@ -15,7 +16,7 @@ public interface OrganizerClaimHistoryRepository extends JpaRepository<Organizer
      * Jumlah revenue dari event fee yang sudah diklaim oleh organizer
      */
     @Query(value = "select sum(och.claimAmount) from OrganizerClaimHistory och where och.organizer = :organizer")
-    BigInteger totalClaimedRevenue(@Param("organizer") String organizer);
+    Optional<BigInteger> totalClaimedRevenue(@Param("organizer") String organizer);
 
 
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, BigInteger> {
@@ -29,6 +30,6 @@ public interface EventRepository extends JpaRepository<Event, BigInteger> {
      * Penghasilan total dari organizer dalam membuat event = participant * event fee
      */
     @Query(value = "select sum(en.debitAmount) from Event ev join Enroll en on en.id = ev.id where ev.organizer = :organizer")
-    BigInteger totalRevenueOfOrganizer(@Param("organizer") String organizer);
+    Optional<BigInteger> totalRevenueOfOrganizer(@Param("organizer") String organizer);
 
 }
