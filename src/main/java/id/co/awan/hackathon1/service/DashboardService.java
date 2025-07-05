@@ -4,10 +4,7 @@ import id.co.awan.hackathon1.model.dto.*;
 import id.co.awan.hackathon1.model.entity.Attend;
 import id.co.awan.hackathon1.model.entity.Event;
 import id.co.awan.hackathon1.model.entity.Session;
-import id.co.awan.hackathon1.repository.AttendRepository;
-import id.co.awan.hackathon1.repository.EnrollRepository;
-import id.co.awan.hackathon1.repository.EventRepository;
-import id.co.awan.hackathon1.repository.OrganizerClaimHistoryRepository;
+import id.co.awan.hackathon1.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +23,7 @@ public class DashboardService {
     private final EnrollRepository enrollRepository;
     private final OrganizerClaimHistoryRepository organizerClaimHistoryRepository;
     private final AttendRepository attendRepository;
+    private final SessionRepository sessionRepository;
 
     private final DateTimeFormatter humanReadableFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")
             .withZone(ZoneId.systemDefault());
@@ -184,7 +182,10 @@ public class DashboardService {
             long durationInSeconds = endSessionTime - startSessionTime;
 
             Integer totalParticipant = enrollRepository.countAllById(event.getId());
-
+            Boolean linkHasGenerated = sessionRepository.isTokenHasGenerated(event.getId(), session.getSession())
+                    .orElse(Boolean.FALSE);
+            Boolean sessionIsRunning = sessionRepository.isSessionRunning(event.getId(), session.getSession())
+                    .orElse(Boolean.FALSE);
 
             return new GetDashboardEOUpcomingSession(
                     event.getId(),
@@ -197,7 +198,8 @@ public class DashboardService {
                     humanReadableFormatter.format(Instant.ofEpochSecond(startSessionTime)),
                     humanReadableFormatter.format(Instant.ofEpochSecond(endSessionTime)),
                     Math.floorDiv((int) durationInSeconds, 3600),
-                    Math.floorDiv((int) (durationInSeconds % 3600), 60)
+                    Math.floorDiv((int) (durationInSeconds % 3600), 60),
+                    !linkHasGenerated && sessionIsRunning
             );
         };
 

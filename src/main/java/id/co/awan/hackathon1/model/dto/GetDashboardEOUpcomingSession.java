@@ -29,4 +29,6 @@ public class GetDashboardEOUpcomingSession {
     public Integer durationInHours;
     public Integer durationInMinute;
 
+    public Boolean generateLinkButtonEnable;
+
 }

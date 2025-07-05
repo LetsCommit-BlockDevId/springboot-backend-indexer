@@ -30,6 +30,13 @@ public interface SessionRepository extends JpaRepository<Session, Session.Sessio
     @Query(value = "SELECT CASE WHEN s.attendToken IS NOT NULL THEN TRUE ELSE FALSE END FROM Session s WHERE s.id = :id ORDER BY s.session DESC LIMIT 1")
     Optional<Boolean> isLastEventSessionHasEnd(@Param("id") BigInteger id);
 
+
+    @Query(value = "select (attendToken IS NULL) from Session where id = :id and session = :session")
+    Optional<Boolean> isTokenHasGenerated(@Param("id") BigInteger id, @Param("session") Integer session);
+
+    @Query(value = "select TRUE from ponder.session where to_timestamp(start_session_time) < now() and to_timestamp(end_session_time) > now() and id = :id and session = :sessionIndex", nativeQuery = true)
+    Optional<Boolean> isSessionRunning(@Param("id") BigInteger id, @Param("sessionIndex") Integer sessionIndex);
+
     /**
      * Berapakah session di event yang sudah dilalui?
      */
