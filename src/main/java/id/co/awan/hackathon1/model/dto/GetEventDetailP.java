@@ -25,6 +25,8 @@ public class GetEventDetailP {
 
     private BigInteger startSaleDate;
     private BigInteger endSaleDate;
+    public String startSaleDateHumanReadable;
+    public String endSaleDateHumanReadable;
 
     private String organizer;
     private String location;

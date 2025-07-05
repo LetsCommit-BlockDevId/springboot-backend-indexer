@@ -12,6 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -21,6 +24,9 @@ public class EventController {
 
     private final EventService eventService;
     private final EventRepository eventRepository;
+
+    private final DateTimeFormatter humanReadableFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")
+            .withZone(ZoneId.systemDefault());
 
     // DONE
     @Operation(
@@ -62,7 +68,8 @@ public class EventController {
         var canWithdraw = status.equals(EventState.FINISHED); // canWithDrawStatus only when event state finished
         var participantList = eventService.getEventParticipants(event);
 
-        return ResponseEntity.ok(new GetEventDetailEO(
+        return ResponseEntity.ok(
+                new GetEventDetailEO(
                 event.getId(),
                 event.getTitle(),
                 event.getDescription(),
@@ -72,6 +79,8 @@ public class EventController {
                 event.getPriceAmount().add(event.getCommitmentAmount()), // SUM Operation
                 event.getStartSaleDate(),
                 event.getEndSaleDate(),
+                humanReadableFormatter.format(Instant.ofEpochSecond(event.getStartSaleDate().longValue())),
+                humanReadableFormatter.format(Instant.ofEpochSecond(event.getEndSaleDate().longValue())),
                 event.getOrganizer(),
                 event.getLocation(),
                 participantList,
@@ -119,8 +128,10 @@ public class EventController {
                 event.getPriceAmount(),
                 event.getCommitmentAmount(),
                 event.getPriceAmount().add(event.getCommitmentAmount()),
-                event.getStartSaleDate(),
-                event.getEndSaleDate(),
+                null,
+                null,
+                humanReadableFormatter.format(Instant.ofEpochSecond(event.getStartSaleDate().longValue())),
+                humanReadableFormatter.format(Instant.ofEpochSecond(event.getEndSaleDate().longValue())),
                 event.getOrganizer(),
                 event.getLocation(),
                 participantList,

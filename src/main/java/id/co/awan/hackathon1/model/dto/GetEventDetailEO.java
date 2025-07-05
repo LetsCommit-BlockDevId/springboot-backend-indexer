@@ -25,6 +25,8 @@ public class GetEventDetailEO {
 
     public BigInteger startSaleDate;
     public BigInteger endSaleDate;
+    public String startSaleDateHumanReadable;
+    public String endSaleDateHumanReadable;
 
     public String organizer;
     public String location;
