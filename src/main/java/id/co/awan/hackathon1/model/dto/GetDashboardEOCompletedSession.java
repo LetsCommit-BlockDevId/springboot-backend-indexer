@@ -28,6 +28,4 @@ public class GetDashboardEOCompletedSession {
     private Integer attendance;
     private Integer totalParticipants;
 
-    private Boolean isLinkGenerated;
-
 }

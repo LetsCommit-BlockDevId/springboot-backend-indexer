@@ -229,9 +229,7 @@ public class DashboardService {
                     humanReadableFormatter.format(Instant.ofEpochSecond(session.getStartSessionTime().longValue())),
                     humanReadableFormatter.format(Instant.ofEpochSecond(session.getEndSessionTime().longValue())),
                     attendanceCount,
-                    totalParticipant,
-                    // TODO: Complete this logic
-                    null
+                    totalParticipant
             );
 
 
