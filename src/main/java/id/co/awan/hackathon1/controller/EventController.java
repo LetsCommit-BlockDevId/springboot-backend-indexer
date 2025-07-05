@@ -70,27 +70,27 @@ public class EventController {
 
         return ResponseEntity.ok(
                 new GetEventDetailEO(
-                event.getId(),
-                event.getTitle(),
-                event.getDescription(),
-                event.getImageUri(),
-                event.getPriceAmount(),
-                event.getCommitmentAmount(),
-                event.getPriceAmount().add(event.getCommitmentAmount()), // SUM Operation
-                event.getStartSaleDate(),
-                event.getEndSaleDate(),
-                humanReadableFormatter.format(Instant.ofEpochSecond(event.getStartSaleDate().longValue())),
-                humanReadableFormatter.format(Instant.ofEpochSecond(event.getEndSaleDate().longValue())),
-                event.getOrganizer(),
-                event.getLocation(),
-                participantList,
-                totalParticipant,
-                event.getMaxParticipant(),
-                status,
-                canWithdraw,
-                sessions,
-                statistic
-        ));
+                        event.getId(),
+                        event.getTitle(),
+                        event.getDescription(),
+                        event.getImageUri(),
+                        event.getPriceAmount(),
+                        event.getCommitmentAmount(),
+                        event.getPriceAmount().add(event.getCommitmentAmount()), // SUM Operation
+                        event.getStartSaleDate(),
+                        event.getEndSaleDate(),
+                        humanReadableFormatter.format(Instant.ofEpochSecond(event.getStartSaleDate().longValue())),
+                        humanReadableFormatter.format(Instant.ofEpochSecond(event.getEndSaleDate().longValue())),
+                        event.getOrganizer(),
+                        event.getLocation(),
+                        participantList,
+                        totalParticipant,
+                        event.getMaxParticipant(),
+                        status,
+                        canWithdraw,
+                        sessions,
+                        statistic
+                ));
     }
 
     @Operation(
@@ -109,16 +109,21 @@ public class EventController {
         participantAddress = participantAddress.toLowerCase();
 
         // ResponseStatusException
-        eventService.validateParticipantExistInEvent(eventId, participantAddress);
-
+        Boolean participantExistInEvent = eventService.isParticipantExistInEvent(eventId, participantAddress);
         var event = eventService.getEventById(eventId);
-        var sessions = eventService.getSessionsParticipantView(event, participantAddress);
+
+        var sessions = participantExistInEvent ?
+                /* Participant View */ eventService.getSessionsParticipantView(event, participantAddress)
+                /* Guest View */ : eventService.getSessionsGuestView(event);
+
         var totalParticipant = eventService.getTotalParticipant(event);
         var status = eventService.getEventStatus(event);
-        var totalAttendInAnEvent = eventService.getTotalParticipantAttendInAnEvent(event, participantAddress);
-        var statistic = eventService.getEventDetailPStatistic(totalAttendInAnEvent, sessions);
-        var participantList = eventService.getEventParticipants(event);
 
+        var statistic = participantExistInEvent ?
+                /* Participant View */ eventService.getEventDetailPStatistic(event, participantAddress, sessions)
+                /* Guest View */ : null;
+
+        var participantList = eventService.getEventParticipants(event);
 
         return ResponseEntity.ok(new GetEventDetailP(
                 event.getId(),
@@ -128,8 +133,8 @@ public class EventController {
                 event.getPriceAmount(),
                 event.getCommitmentAmount(),
                 event.getPriceAmount().add(event.getCommitmentAmount()),
-                null,
-                null,
+                event.getStartSaleDate(),
+                event.getEndSaleDate(),
                 humanReadableFormatter.format(Instant.ofEpochSecond(event.getStartSaleDate().longValue())),
                 humanReadableFormatter.format(Instant.ofEpochSecond(event.getEndSaleDate().longValue())),
                 event.getOrganizer(),

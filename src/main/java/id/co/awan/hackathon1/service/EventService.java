@@ -72,6 +72,15 @@ public class EventService {
                 .toList();
     }
 
+    public List<GetEventDetailPSession>
+    getSessionsGuestView(Event event) {
+        List<Session> sessions = sessionRepository.findAllById(event.getId());
+        return sessions
+                .stream()
+                .map(sessionToGuestEventDetailPSession())
+                .toList();
+    }
+
 
     public GetEventDetailEOStatistic
     getEventDetailEOStatistic(Event event, Integer totalParticipant, Integer sessionLength) {
@@ -99,7 +108,9 @@ public class EventService {
     }
 
     public GetEventDetailPStatistic
-    getEventDetailPStatistic(Integer totalAttendInAnEvent, List<GetEventDetailPSession> session) {
+    getEventDetailPStatistic(Event event, String participantAddress, List<GetEventDetailPSession> session) {
+
+        Integer totalAttendInAnEvent = getTotalParticipantAttendInAnEvent(event, participantAddress);
         return new GetEventDetailPStatistic(
                 totalAttendInAnEvent,
                 session.size(),
@@ -137,7 +148,6 @@ public class EventService {
         }
     }
 
-
     /*
      * ======================================================================================
      *                             Pure JPA
@@ -157,6 +167,11 @@ public class EventService {
     public List<String>
     getEventParticipants(Event event) {
         return enrollRepository.findAllParticipanInAnEvent(event.getId());
+    }
+
+    public Boolean
+    isParticipantExistInEvent(BigInteger eventId, String participantAddress) {
+        return enrollRepository.existsById(new Enroll.EnrollId(eventId, participantAddress));
     }
 
     /*
@@ -359,6 +374,36 @@ public class EventService {
                     Math.floorDiv((int) (durationInSeconds % 3600), 60),
                     totalAttenders,
                     status
+            );
+
+        };
+    }
+
+    private Function<Session, GetEventDetailPSession>
+    sessionToGuestEventDetailPSession() {
+        return session -> {
+
+            Integer totalAttenders = attendRepository.countAllByIdAndSession(session.getId(), session.getSession());
+
+            long startSessionTime = session.getStartSessionTime().longValue();
+            long endSessionTime = session.getEndSessionTime().longValue();
+            BigInteger estimatedInSecond = BigInteger.valueOf(startSessionTime - Instant.now().getEpochSecond());
+
+            long durationInSeconds = endSessionTime - startSessionTime;
+
+            return new GetEventDetailPSession(
+                    session.getSession(),
+                    session.getTitle(),
+                    session.getStartSessionTime(),
+                    session.getEndSessionTime(),
+                    humanReadableFormatter.format(Instant.ofEpochSecond(startSessionTime)),
+                    humanReadableFormatter.format(Instant.ofEpochSecond(endSessionTime)),
+                    estimatedInSecond,
+                    formatDurationFromNow(estimatedInSecond),
+                    Math.floorDiv((int) durationInSeconds, 3600),
+                    Math.floorDiv((int) (durationInSeconds % 3600), 60),
+                    totalAttenders,
+                    null
             );
 
         };
