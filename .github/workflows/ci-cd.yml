@@ -33,10 +33,10 @@ jobs:
         run: chmod a+x ./mvnw
 
       - name: Build with Maven
-        run: ./mvnw clean package -DskipTests
+        run: ./mvnw clean package -DskipTests -DfinalName=lets-commit-backend-indexer
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: spring-boot-app
-          path: target/*.jar
+          path: target/lets-commit-backend-indexer.jar
