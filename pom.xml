@@ -30,6 +30,7 @@
         <java.version>21</java.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -86,7 +87,9 @@
         </dependency>
     </dependencies>
 
+    <packaging>jar</packaging>
     <build>
+        <finalName>lets-commit-backend-indexer</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
