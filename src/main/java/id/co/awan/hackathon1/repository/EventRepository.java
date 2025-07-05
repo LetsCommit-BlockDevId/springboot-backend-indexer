@@ -17,7 +17,7 @@ public interface EventRepository extends JpaRepository<Event, BigInteger> {
     /**
      * Session yang akan datang, dilihat dari POV Organizer
      */
-    @Query(value = "select s.* from ponder.event ev join ponder.session s on s.id = ev.id where to_timestamp(s.start_session_time) > now() and ev.organizer = :organizer", nativeQuery = true)
+    @Query(value = "select s.* from ponder.event ev join ponder.session s on s.id = ev.id where to_timestamp(s.start_session_time) > now() or (to_timestamp(s.start_session_time) < now() and to_timestamp(s.end_session_time) > now() ) and ev.organizer = :organizer", nativeQuery = true)
     List<Session> upcomingSessionByOrganizer(@Param("organizer") String organizer);
 
     /**
