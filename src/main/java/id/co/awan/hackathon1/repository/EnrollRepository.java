@@ -35,9 +35,9 @@ public interface EnrollRepository extends JpaRepository<Enroll, Enroll.EnrollId>
     BigInteger getTotalBalanceManaged();
 
     /**
-     * Total Commitment Fee participant jika dihitung semua dari awal sampai akhir
+     * Total Commitment Fee participant yang akan didapat, jika dihitung semua dari awal sampai akhir
      */
-    @Query(value = "select sum(ev.priceAmount * ev.totalSession) from Enroll en join Event ev on ev.id = en.id where en.participant = :participant")
+    @Query(value = "select sum(ev.commitmentAmount) from Enroll en join Event ev on en.id = ev.id where en.participant = :participant")
     Optional<BigInteger> totalCommitmentFee(@Param("participant") String participant);
 
     /**

@@ -62,7 +62,6 @@ public class DashboardService {
         BigInteger unclaimedCommitmentFee = totalCommitmentFee.subtract(totalCommitmentFeeClaimed);
 
         return new GetDashboardPStatistic(
-                null, //Gak relevan,
                 unclaimedCommitmentFee,
                 totalCommitmentFeeClaimed
         );

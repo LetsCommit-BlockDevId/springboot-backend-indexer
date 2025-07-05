@@ -13,7 +13,6 @@ import java.math.BigInteger;
 @NoArgsConstructor
 public class GetDashboardPStatistic {
 
-    private BigInteger totalDeposit;
     private BigInteger totalCommitmentFeeAvailable;
     private BigInteger totalCommitmentFeeClaimed;
 }
