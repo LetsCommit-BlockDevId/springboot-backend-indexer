@@ -190,7 +190,7 @@ public class DashboardService {
                     session.getSession(),
                     session.getTitle(),
                     session.getStartSessionTime(),
-                    session.getStartSessionTime(),
+                    session.getEndSessionTime(),
                     humanReadableFormatter.format(Instant.ofEpochSecond(startSessionTime)),
                     humanReadableFormatter.format(Instant.ofEpochSecond(endSessionTime)),
                     Math.floorDiv((int) durationInSeconds, 3600),
