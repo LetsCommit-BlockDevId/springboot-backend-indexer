@@ -15,6 +15,7 @@ public class GetDashboardEOUpcomingSession {
 
     public BigInteger eventId;
     public String eventTitle;
+    private Integer totalParticipants;
 
     public Integer sessionNumber;
     public String sessionTitle;
@@ -24,7 +25,6 @@ public class GetDashboardEOUpcomingSession {
 
     public String startSessionHumanReadable;
     public String endSessionHumanReadable;
-
 
     public Integer durationInHours;
     public Integer durationInMinute;

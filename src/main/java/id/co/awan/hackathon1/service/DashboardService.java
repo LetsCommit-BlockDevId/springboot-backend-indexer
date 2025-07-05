@@ -180,9 +180,13 @@ public class DashboardService {
             long endSessionTime = session.getEndSessionTime().longValue();
             long durationInSeconds = endSessionTime - startSessionTime;
 
+            Integer totalParticipant = enrollRepository.countAllById(event.getId());
+
+
             return new GetDashboardEOUpcomingSession(
                     event.getId(),
                     event.getTitle(),
+                    totalParticipant,
                     session.getSession(),
                     session.getTitle(),
                     session.getStartSessionTime(),
