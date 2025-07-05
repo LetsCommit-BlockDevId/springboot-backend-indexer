@@ -25,6 +25,8 @@ public class GetDashboardEOCompletedSession {
     private String startSessionHumanReadable;
     private String endSessionHumanReadable;
 
+    private Integer attendance;
+    private Integer totalParticipants;
 
     private Boolean isLinkGenerated;
 

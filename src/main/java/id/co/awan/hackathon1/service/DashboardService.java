@@ -207,6 +207,9 @@ public class DashboardService {
                 return null;
             }
 
+            Integer attendanceCount = attendRepository.countAllByIdAndSession(session.getId(), session.getSession());
+            Integer totalParticipant = enrollRepository.countAllById(event.getId());
+
             return new GetDashboardEOCompletedSession(
                     event.getId(),
                     event.getTitle(),
@@ -216,6 +219,8 @@ public class DashboardService {
                     session.getEndSessionTime(),
                     humanReadableFormatter.format(Instant.ofEpochSecond(session.getStartSessionTime().longValue())),
                     humanReadableFormatter.format(Instant.ofEpochSecond(session.getEndSessionTime().longValue())),
+                    attendanceCount,
+                    totalParticipant,
                     // TODO: Complete this logic
                     null
             );
