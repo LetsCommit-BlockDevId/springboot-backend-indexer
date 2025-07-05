@@ -28,7 +28,7 @@ public class DashboardController {
             String participantAddress
     ) {
 
-        var statistic = dashboardService.getParticipantStatistic(participantAddress); // e: ResponseStatusException
+        var statistic = dashboardService.getParticipantStatistic(participantAddress);
         var upcomingSessions = dashboardService.getParticipantUpcomingSession(participantAddress);
         var completedSession = dashboardService.getParticipantCompletedSession(participantAddress);
 

@@ -255,7 +255,7 @@ public class EventService {
         return event -> {
 
             BigInteger eventId = event.getId();
-            Integer participant = enrollRepository.countAllById(eventId);
+            List<String> participantList = getEventParticipants(event);
 
             BigInteger priceAmount = event.getPriceAmount();
             BigInteger commitmentAmount = event.getCommitmentAmount();
@@ -288,7 +288,8 @@ public class EventService {
                     endSaleDateHumanReadable,
                     event.getOrganizer(),
                     event.getLocation(),
-                    participant,
+                    participantList,
+                    participantList.size(),
                     event.getMaxParticipant(),
                     status
             );

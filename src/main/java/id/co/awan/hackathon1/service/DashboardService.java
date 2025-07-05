@@ -8,9 +8,7 @@ import id.co.awan.hackathon1.repository.EnrollRepository;
 import id.co.awan.hackathon1.repository.EventRepository;
 import id.co.awan.hackathon1.repository.OrganizerClaimHistoryRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigInteger;
 import java.time.Instant;
@@ -47,14 +45,11 @@ public class DashboardService {
     }
 
     public GetDashboardPStatistic
-    getParticipantStatistic(String participantAddress) throws ResponseStatusException {
+    getParticipantStatistic(String participantAddress) {
 
         BigInteger totalCommitmentFee = enrollRepository
                 .totalCommitmentFee(participantAddress)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "participant doesn't have enrolled event"
-                ));
+                .orElse(BigInteger.ZERO);
 
         BigInteger totalCommitmentFeeClaimed = attendRepository
                 .totalClaimedCommitmentFee(participantAddress)

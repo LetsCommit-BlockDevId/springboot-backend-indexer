@@ -5,8 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.List;
 
 @Setter
 @Getter
@@ -35,6 +35,7 @@ public class GetEvent {
     private String organizer;
     private String location;
 
+    private List<String> participantList;
     private Integer participant;
     private Integer maxParticipant;
 
