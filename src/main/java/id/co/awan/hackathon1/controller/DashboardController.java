@@ -28,6 +28,8 @@ public class DashboardController {
             String participantAddress
     ) {
 
+        participantAddress = participantAddress.toLowerCase();
+
         var statistic = dashboardService.getParticipantStatistic(participantAddress);
         var upcomingSessions = dashboardService.getParticipantUpcomingSession(participantAddress);
         var completedSession = dashboardService.getParticipantCompletedSession(participantAddress);
@@ -50,6 +52,8 @@ public class DashboardController {
             @PathVariable(name = "address")
             String organizerAddress
     ) {
+
+        organizerAddress = organizerAddress.toLowerCase();
 
         var statistic = dashboardService.getOrganizerStatistic(organizerAddress);
         var upcomingSession = dashboardService.getOrganizerUpcomingSession(organizerAddress);

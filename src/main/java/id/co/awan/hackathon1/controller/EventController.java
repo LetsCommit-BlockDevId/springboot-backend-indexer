@@ -4,7 +4,6 @@ import id.co.awan.hackathon1.model.dto.EventState;
 import id.co.awan.hackathon1.model.dto.GetEvent;
 import id.co.awan.hackathon1.model.dto.GetEventDetailEO;
 import id.co.awan.hackathon1.model.dto.GetEventDetailP;
-import id.co.awan.hackathon1.repository.EnrollRepository;
 import id.co.awan.hackathon1.repository.EventRepository;
 import id.co.awan.hackathon1.service.EventService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -97,6 +96,8 @@ public class EventController {
             @PathVariable(name = "participantAddress")
             String participantAddress
     ) {
+
+        participantAddress = participantAddress.toLowerCase();
 
         // ResponseStatusException
         eventService.validateParticipantExistInEvent(eventId, participantAddress);
