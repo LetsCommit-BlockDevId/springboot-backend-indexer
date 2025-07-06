@@ -36,7 +36,7 @@ public interface AttendRepository extends JpaRepository<Attend, Attend.AttendId>
     /**
      * Commitment Fee yang sudah diklaim oleh participant dari semua event yang ada
      */
-    @Query(value = "select count(*) * ev.priceAmount from Attend aes join Event ev on ev.id = aes.id where aes.participant = :participant group by aes.id, ev.priceAmount")
+    @Query(value = "select count(*) * ev.commitmentAmount from Attend aes join Event ev on ev.id = aes.id where aes.participant = :participant group by aes.id, ev.priceAmount")
     Optional<BigInteger> totalClaimedCommitmentFee(@Param("participant") String participant);
 
 }

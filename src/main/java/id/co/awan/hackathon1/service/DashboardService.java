@@ -58,7 +58,7 @@ public class DashboardService {
                 .totalClaimedCommitmentFee(participantAddress)
                 .orElse(BigInteger.ZERO);
 
-        // Commitment yang belum diklaim = tot commitment fee - claimed commitment fee
+        // totalCommitmentFeeAvailable = tot commitment fee - claimed commitment fee
         BigInteger unclaimedCommitmentFee = totalCommitmentFee.subtract(totalCommitmentFeeClaimed);
 
         return new GetDashboardPStatistic(
